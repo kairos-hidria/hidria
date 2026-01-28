@@ -5,11 +5,16 @@
 ## 项目入口
 
 ### 1) [希德里亚设定](hs/index)（HS）
-### 2) [RPG：塑忆回响](rpg/inde)（EoH / Echo of Hidria）
+### 2) [RPG：塑忆回响](rpg/index)（EoH / Echo of Hidria）
 ### 3) [TRPG：塑忆之诗](trpg/index)（PoH/Poem of Hidria）
 ### 4) [集换式卡牌对战：塑忆之战](tcg/index)（BoHR / Battle of Hidria）
 
 
+
+---
+
+更新：2026-01-28-17:54
+重大更新，完成了部分trpg的主页内容
 
 ---
 

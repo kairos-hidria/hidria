@@ -25,7 +25,7 @@
 
 ## 游戏规则
 ---
-- [世界观](hs/index.md)
+- [世界观](../hs/index.md)
 - [给探索员的全面指南](trpg/rules/player_rules.md)
 - [给管理员的全面指南](trpg/rules/storyteller_rules.md)
 

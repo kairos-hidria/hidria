@@ -4,38 +4,35 @@
 
 ## 项目入口
 
-### 1) 希德里亚设定（HS）
-- [设定总览](hs/index.md)
-- [概念体体系](hs/concepts/index.md)
-- [组织/势力](hs/factions/index.md)
-- [人物档案](hs/characters/index.md)
-- [时间线](hs/timeline/index.md)
+### 1) [希德里亚设定](hs/index)（HS）
+	
+	
+	
+### 2) [RPG：塑忆回响](rpg/inde)（EoH / Echo of Hidria）
+	
+	
+	
+### 3) [TRPG：塑忆之诗](trpg/index)（PoH/Poem of Hidria）
+	
+	
+	
+### 4) [集换式卡牌对战：塑忆之战](tcg/index)（BoHR / Battle of Hidria）
 
-### 2) RPG：塑忆回响（EoH / Echo of Hidria）
-- [游戏总览](rpg/index.md)
-- [核心玩法/系统](rpg/systems/index.md)
-- [角色与队伍](rpg/characters/index.md)
-- [关卡/区域](rpg/regions/index.md)
 
-### 3) TRPG：塑忆之诗
-- [规则解释](trpg/index.md)
-- [种族](trpg/races/index.md)
-- [属性与判定](trpg/rules/index.md)
-- [模组](trpg/modules/index.md)
-
-### 4) 集换式卡牌对战：塑忆之战（BoHR / Battle of Hidria）
-- [卡牌系统总览](tcg/index.md)
-- [卡组与机制](tcg/decks/index.md)
-- [卡表](tcg/cards/index.md)
 
 ---
 
-更新：2026-01-27
-施工中，非最终版本，将会有大改动。
+更新：2026-01-28-15:44
+非重大更新，将链接更换为了更常用的写法。并将更新报告转为倒序。
 
 ---
 
 更新：2026-01-28-12:30
 非重大更新，更新了部分链接定向，修缮了亿些问题。
+
+---
+
+更新：2026-01-27
+施工中，非最终版本，将会有大改动。
 
 ---

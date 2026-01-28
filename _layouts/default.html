@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+</head>
+<body>
+  <div class="bg"></div>
+
+  <header class="wrap top">
+    <a class="brand" href="{{ '/' | relative_url }}">Hidria</a>
+    <nav class="nav">
+      <a href="{{ '/hs/' | relative_url }}">HS</a>
+      <a href="{{ '/rpg/' | relative_url }}">RPG</a>
+      <a href="{{ '/trpg/' | relative_url }}">TRPG</a>
+      <a href="{{ '/tcg/' | relative_url }}">TCG</a>
+    </nav>
+  </header>
+
+  <main class="wrap content">
+    <article class="card">
+      {% if page.title %}
+        <h1 class="title">{{ page.title }}</h1>
+      {% endif %}
+      <div class="md">
+        {{ content }}
+      </div>
+    </article>
+
+    <footer class="wrap foot">
+      <span class="muted">© {{ site.time | date: '%Y' }} Hidria</span>
+    </footer>
+  </main>
+</body>
+</html>

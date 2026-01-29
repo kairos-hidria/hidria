@@ -1,0 +1,95 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build deps
+        run: pip install markdown
+
+      - name: Build html from md
+        run: |
+          python - << 'PY'
+          import shutil
+          from pathlib import Path
+          from markdown import markdown
+
+          ROOT = Path(".").resolve()
+          OUT = ROOT / "_site"
+          if OUT.exists(): shutil.rmtree(OUT)
+          OUT.mkdir()
+
+          # 复制 assets
+          if (ROOT/"assets").exists():
+            shutil.copytree(ROOT/"assets", OUT/"assets")
+
+          # 复制图片等资源
+          keep = {".png",".jpg",".jpeg",".webp",".gif",".svg",".pdf",".css",".js",".json",".yml",".yaml",".woff",".woff2",".ttf"}
+          for f in ROOT.rglob("*"):
+            if f.is_dir(): 
+              continue
+            if ".obsidian" in f.parts or "_site" in f.parts or ".github" in f.parts or "tools" in f.parts:
+              continue
+            if f.suffix.lower() in keep:
+              dest = OUT / f.relative_to(ROOT)
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(f, dest)
+
+          # md -> html（保持目录结构）
+          for md in ROOT.rglob("*.md"):
+            if ".obsidian" in md.parts or "_site" in md.parts or ".github" in md.parts or "tools" in md.parts:
+              continue
+            rel = md.relative_to(ROOT)
+            out = OUT / rel.with_suffix(".html")
+            out.parent.mkdir(parents=True, exist_ok=True)
+
+            body = markdown(md.read_text(encoding="utf-8"), extensions=["tables","fenced_code"])
+            title = rel.stem
+            html = f"""<!doctype html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>{title}</title>
+            <link rel="stylesheet" href="assets/style.css">
+          </head>
+          <body>
+            <main class="wrap content">
+              <article class="card"><div class="md">{body}</div></article>
+            </main>
+          </body>
+          </html>"""
+            out.write_text(html, encoding="utf-8")
+          PY
+
+      - name: Rewrite links to site-root style
+        run: python tools/rewriter.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/deploy-pages@v4

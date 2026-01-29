@@ -1,3 +1,4 @@
+[返回上级](index)
 # TRPG：塑忆之诗
 ---
 ## 关于《塑忆之诗》Wiki
@@ -25,9 +26,9 @@
 
 ## 游戏规则
 ---
-- [世界观](hs/index)
-- [给探索员的全面指南](trpg/rules/player_rules)
-- [给管理员的全面指南](trpg/rules/storyteller_rules)
+- [世界观](hs/index)（用来了解完全的希德里亚世界观的。）
+- [给探索员的全面指南](trpg/rules/player_rules/index)
+- [给管理员的全面指南](trpg/rules/storyteller_rules/index)
 
 ## 官方模组
 ---

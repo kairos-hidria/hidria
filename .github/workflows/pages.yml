@@ -62,7 +62,64 @@ jobs:
             out = OUT / rel.with_suffix(".html")
             out.parent.mkdir(parents=True, exist_ok=True)
 
-            body = markdown(md.read_text(encoding="utf-8"), extensions=["tables","fenced_code"])
+                        import re
+
+            def convert_obsidian_callouts(text: str) -> str:
+              """
+              Convert:
+              > [!tip]+ Title
+              > body...
+              into:
+              <div class="callout tip">
+                <div class="callout-title">Title</div>
+                <div class="callout-body">
+                ...body...
+                </div>
+              </div>
+              """
+              lines = text.splitlines()
+              out_lines = []
+              i = 0
+              head_re = re.compile(r'^\s*>\s*\[!(\w+)\]\+?\s*(.*)\s*$')
+
+              while i < len(lines):
+                m = head_re.match(lines[i])
+                if not m:
+                  out_lines.append(lines[i])
+                  i += 1
+                  continue
+
+                kind = m.group(1).lower()
+                title = (m.group(2) or "").strip() or kind.upper()
+
+                body_lines = []
+                i += 1
+                while i < len(lines):
+                  line = lines[i]
+                  if head_re.match(line):
+                    break
+                  if re.match(r'^\s*>\s?', line):
+                    body_lines.append(re.sub(r'^\s*>\s?', '', line))
+                    i += 1
+                  else:
+                    break
+
+                body_md = "\n".join(body_lines).strip()
+
+                out_lines.append(f'<div class="callout {kind}">')
+                out_lines.append(f'  <div class="callout-title">{title}</div>')
+                out_lines.append('  <div class="callout-body">')
+                out_lines.append(body_md)
+                out_lines.append('  </div>')
+                out_lines.append('</div>')
+
+              return "\n".join(out_lines)
+
+            md_text = md.read_text(encoding="utf-8")
+            md_text = convert_obsidian_callouts(md_text)
+
+            body = markdown(md_text, extensions=["tables","fenced_code"])
+
             title = rel.stem
             html = f"""<!doctype html>
           <html lang="zh-CN">

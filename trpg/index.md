@@ -25,13 +25,13 @@
 
 ## 游戏规则
 ---
-- [世界观](hs/index.md)
-- [给探索员的全面指南](trpg/rules/player_rules.md)
-- [给管理员的全面指南](trpg/rules/storyteller_rules.md)
+- [世界观](hs/index)
+- [给探索员的全面指南](trpg/rules/player_rules)
+- [给管理员的全面指南](trpg/rules/storyteller_rules)
 
 ## 官方模组
 ---
 #### 亚利维多兹地区
-- [谢尔比亚失踪事件](trpg/modules/The_Shelbyia_Disappearance_Incident/index.md)
-- [橡木镇失联案](trpg/modules/The_Oakwood_Town_Communication_Loss_Case/index.md)
-- [黑木岔口-模拟训练](trpg/modules/Blackwood_Crossroads-Simulation_Training/index.md)
+- [谢尔比亚失踪事件](trpg/modules/The_Shelbyia_Disappearance_Incident/index)
+- [橡木镇失联案](trpg/modules/The_Oakwood_Town_Communication_Loss_Case/index)
+- [黑木岔口-模拟训练](trpg/modules/Blackwood_Crossroads-Simulation_Training/index)

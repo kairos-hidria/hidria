@@ -1,4 +1,3 @@
-
 ← [返回《给探索者的全面指南》](trpg/rules/player_rules/index)
 
 # 2. 一张角色卡看懂你的探索员

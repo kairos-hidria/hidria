@@ -8,9 +8,20 @@
 ### 2) [RPG：塑忆回响](rpg/index)（EoH / Echo of Hidria）
 ### 3) [TRPG：塑忆之诗](trpg/index)（PoH/Poem of Hidria）
 ### 4) [集换式卡牌对战：塑忆之战](tcg/index)（BoHR / Battle of Hidria）
+# 其他项目
+### 1）[染·钟楼谜团自制剧本与自制角色](blood_on_the_clocktower/index)
 
 
 
+---
+
+更新：2026-01-30-23:55
+完成部分trpg文档内容。
+
+---
+
+更新：2026-01-30-14:46
+新增项目。
 
 ---
 

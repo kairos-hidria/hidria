@@ -16,38 +16,39 @@
 > [!tip] 阅读方式
 > 按顺序阅读即可；读完后你就能直接开跑新手模组。
 
-### [1. 游戏是怎么进行的？](trpg/rules/player_rules/how_to_do)
+### [1. 游戏是怎么进行的？](1.how_to_do.md)
 - 管理员负责什么？
 - 探索员负责什么？
 - 什么情况下需要掷骰？
 
-### [2. 一张角色卡看懂你的探索员](trpg/rules/player_rules/character_sheet)
+### [2. 一张角色卡看懂你的探索员](2.character_sheet.md)
 - 六维属性（STR/CHA/INT/DEX/CON/POW）分别代表什么？
 - 其他的最终属性是什么？
 - 魔法又是什么？
 - 武器又应该怎么抉择？
 
-### [3. 判定系统（投掷与成功）](trpg/rules/player_rules/checks)
+### [3. 判定系统（投掷与成功）](3.checks.md)
 - 什么时候判定？
 - 如何掷骰？
 - 成功/失败/大成功/大失败？
 - 对抗判定怎么处理？
 - 特殊判定如何处理？
 
-### [4. 行动与回合（战斗前置）](trpg/rules/player_rules/before_battle)
+### [4. 行动与回合（战斗前置）](4.before_battle.md)
 - 一轮是什么？
 - 一回合能干什么？
 - 移动、攻击、使用道具
 
-### [5. 战斗（简化版）](trpg/rules/player_rules/battle)
+### [5. 战斗（简化版）](5.battle.md)
 - 命中与伤害
 - 防御/闪避
 - 负面状态（眩晕、束缚等，如果有）
 
 
-### [6. 游戏流程总览（完整一局的循环）](trpg/rules/player_rules/all)
+### [6. 游戏流程总览（完整一局的循环）](6.all.md)
 
 ---
 ## 正式规则部分
 从本阶段开始，将全面的交代所有的规则。
-## Ⅰ
+## Ⅰ.角色卡填写
+

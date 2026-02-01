@@ -1,3 +1,4 @@
+import re
 import shutil
 from pathlib import Path
 from markdown import markdown
@@ -40,16 +41,21 @@ for md in ROOT.rglob("*.md"):
     out = OUT / rel.with_suffix(".html")
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    body = markdown(md.read_text(encoding="utf-8"), extensions=["tables", "fenced_code"])
+    md_text = md.read_text(encoding="utf-8")
 
-    title = rel.stem
+    # ✅ 用第一个 H1 当页面标题（解决“全是 index”）
+    m = re.search(r'^\s*#\s+(.+?)\s*$', md_text, flags=re.M)
+    title = m.group(1).strip() if m else rel.stem
+
+    body = markdown(md_text, extensions=["tables", "fenced_code"])
+
     html = f"""<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
-  <link rel="stylesheet" href="/hidria/assets/style.css">
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <main class="wrap content">

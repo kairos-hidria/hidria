@@ -29,7 +29,7 @@
 - [世界观](/hs/index)（用来了解完全的希德里亚世界观的。）
 - [给探索员的全面指南](/trpg/rules/player_rules/index)
 - [给管理员的全面指南](/trpg/rules/storyteller_rules/index)
-
+- [给希望创建自己的模组的人看的部分]()
 ## [官方模组](/trpg/modules/index)
 ---
 #### 亚利维多兹地区

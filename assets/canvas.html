@@ -12,6 +12,7 @@
       color: rgba(255,255,255,.9);
       overflow: hidden;
     }
+
     .hint {
       position: fixed;
       left: 12px;
@@ -24,11 +25,13 @@
       padding: 10px 12px;
       backdrop-filter: blur(10px);
     }
+
     .hint code {
       background: rgba(255,255,255,.08);
       padding: 0 .35em;
       border-radius: 8px;
     }
+
     #stage { position: absolute; inset: 0; cursor: grab; }
     #viewport { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
     svg { position: absolute; left: 0; top: 0; overflow: visible; }
@@ -45,9 +48,26 @@
       padding: 12px 12px 10px;
       user-select: none;
     }
-    .node .title { font-weight: 800; margin: 0 0 8px; font-size: 14px; opacity: .95; }
-    .node .body { font-size: 13px; line-height: 1.55; opacity: .86; white-space: pre-wrap; }
-    .node a { color: rgba(160,210,255,.95); text-decoration: none; }
+
+    .node .title {
+      font-weight: 800;
+      margin: 0 0 8px;
+      font-size: 14px;
+      opacity: .95;
+    }
+
+    .node .body {
+      font-size: 13px;
+      line-height: 1.55;
+      opacity: .86;
+      white-space: pre-wrap;
+    }
+
+    .node a {
+      color: rgba(160,210,255,.95);
+      text-decoration: none;
+    }
+
     .node a:hover { text-decoration: underline; }
     .dragging { outline: 2px solid rgba(160,210,255,.55); }
   </style>
@@ -57,7 +77,7 @@
   <div class="hint">
     <div><b>Canvas Viewer</b></div>
     <div>打开方式：<code>/assets/canvas.html?src=PATH_TO_CANVAS</code></div>
-    <div>拖拽节点 / 滚轮缩放 / 按住空白处拖动画布</div>
+    <div>拖拽节点 / 滚轮缩放 / 按住空白处拖动画布 / 按 <b>F</b> 回中</div>
   </div>
 
   <div id="stage">
@@ -85,7 +105,37 @@
       }
       applyTransform();
 
-      // pan
+      // robust url builder (works with root OR subpath deployment)
+      function toAbsUrl(path) {
+        const u = new URL(path, location.href);
+        u.pathname = encodeURI(u.pathname);
+        return u.toString();
+      }
+
+      function mdToPageUrl(filePath) {
+        // Support:
+        // - xxx/index.md -> xxx/
+        // - xxx.md -> xxx.html
+        // - with #anchor or ?query
+        let p = filePath.replace(/\\/g, "/");
+
+        // index.md (+ optional anchor/query)
+        if (/\/index\.md(\b|[#?])/i.test(p)) {
+          p = p.replace(/index\.md(?=($|[#?]))/i, "");
+          return p;
+        }
+
+        // normal .md (+ optional anchor/query)
+        if (/\.md(\b|[#?])/i.test(p)) {
+          p = p.replace(/\.md(?=($|[#?]))/i, ".html");
+          return p;
+        }
+
+        // no suffix: keep as-is
+        return p;
+      }
+
+      // pan (drag empty space)
       let panning = false;
       let panStart = null;
 
@@ -137,42 +187,6 @@
         return { x: x + w / 2, y: y + h / 2 };
       }
 
-      // robust url builder: works under root domain OR subpath (like /hidria/)
-      function toAbsUrl(path) {
-        // Keep anchors/query, encode chinese safely in path part
-        // Example: "trpg/你好.md#x" -> URL relative to current page
-        const u = new URL(path, location.href);
-        // encodeURI keeps / ? # intact but encodes chinese
-        u.pathname = encodeURI(u.pathname);
-        return u.toString();
-      }
-
-      function mdToPageUrl(filePath) {
-        // Support:
-        // - xxx/index.md -> xxx/
-        // - xxx.md -> xxx.html
-        // - with #anchor or ?query
-        let p = filePath;
-
-        // If it contains backslashes (Windows paths), normalize
-        p = p.replace(/\\/g, "/");
-
-        // index.md (+ optional anchor/query)
-        if (/\/index\.md(\b|[#?])/i.test(p)) {
-          p = p.replace(/index\.md(?=($|[#?]))/i, "");
-          return p;
-        }
-
-        // normal .md (+ optional anchor/query)
-        if (/\.md(\b|[#?])/i.test(p)) {
-          p = p.replace(/\.md(?=($|[#?]))/i, ".html");
-          return p;
-        }
-
-        // no suffix: keep as-is (your router may handle)
-        return p;
-      }
-
       const nodeMap = new Map();
       let edges = [];
 
@@ -200,6 +214,49 @@
         }
       }
 
+      // ✅ auto focus so it won't look blank
+      function fitToNodes(padding = 80) {
+        const items = [...nodeMap.values()];
+        if (!items.length) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        for (const it of items) {
+          const n = it.data;
+
+          const x = n.x ?? (parseFloat(it.el.style.left) || 0);
+          const y = n.y ?? (parseFloat(it.el.style.top) || 0);
+          const w = n.width ?? it.el.offsetWidth ?? 240;
+          const h = n.height ?? it.el.offsetHeight ?? 120;
+
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + w);
+          maxY = Math.max(maxY, y + h);
+        }
+
+        const rect = stage.getBoundingClientRect();
+        const vw = rect.width;
+        const vh = rect.height;
+
+        const contentW = (maxX - minX) + padding * 2;
+        const contentH = (maxY - minY) + padding * 2;
+
+        scale = Math.min(1.4, Math.max(0.35, Math.min(vw / contentW, vh / contentH)));
+
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+
+        panX = vw / 2 - cx * scale;
+        panY = vh / 2 - cy * scale;
+
+        applyTransform();
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key.toLowerCase() === "f") fitToNodes();
+      });
+
       function createNode(n) {
         const el = document.createElement("div");
         el.className = "node";
@@ -218,7 +275,6 @@
         } else if (n.type === "file" && n.file) {
           const pagePath = mdToPageUrl(n.file);
           const url = toAbsUrl(pagePath);
-
           body.innerHTML = `文件：<a href="${url}">${n.file}</a>`;
         } else if (n.type === "link" && n.url) {
           body.innerHTML = `链接：<a href="${n.url}" target="_blank" rel="noreferrer">${n.url}</a>`;
@@ -263,7 +319,6 @@
       }
 
       async function loadCanvas() {
-        // Fetch relative to current page (works with /hidria/ subpath)
         const canvasUrl = toAbsUrl(src.replace(/^\/+/, ""));
         const res = await fetch(canvasUrl, { cache: "no-store" });
 
@@ -288,7 +343,10 @@
         wires.setAttribute("width", "50000");
         wires.setAttribute("height", "50000");
 
-        requestAnimationFrame(drawWires);
+        requestAnimationFrame(() => {
+          fitToNodes();   // ✅ make sure not blank
+          drawWires();
+        });
       }
 
       loadCanvas().catch(err => {

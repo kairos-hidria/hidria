@@ -15,7 +15,6 @@
       --shadow:0 12px 40px rgba(0,0,0,.35);
       --r:18px;
       --accent:rgba(160,210,255,.95);
-      --accent2:rgba(160,210,255,.55);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -64,10 +63,19 @@
     }
     #toggle:hover{ background:rgba(255,255,255,.10); }
 
+    /* list should be on top, scrollable */
+    #list{
+      padding:10px 8px 12px;
+      overflow:auto;
+      flex:1;
+    }
+    #side.collapsed #list{ display:none; }
+
+    /* actions fixed at bottom */
     #side .actions{
       display:flex; gap:8px;
       padding:10px 12px;
-      border-bottom:1px solid var(--line);
+      border-top:1px solid var(--line);
     }
     #side.collapsed .actions{ display:none; }
 
@@ -84,12 +92,6 @@
       user-select:none;
     }
     .btn:hover{ background:rgba(255,255,255,.10); }
-
-    #list{
-      padding:10px 8px 12px;
-      overflow:auto;
-    }
-    #side.collapsed #list{ display:none; }
 
     .item{
       display:flex; align-items:center; gap:10px;
@@ -112,11 +114,14 @@
       color:rgba(255,255,255,.88);
       font-size:13px;
       line-height:1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .item .src{
       color:var(--muted);
       font-size:12px;
-      max-width:40%;
+      max-width:42%;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
@@ -164,7 +169,7 @@
     .node a:hover{ text-decoration:underline; }
     .dragging{ outline:2px solid rgba(160,210,255,.55); }
 
-    /* small toast */
+    /* toast */
     #toast{
       position:fixed;
       left:50%;
@@ -182,10 +187,6 @@
       max-width:min(520px,92vw);
       text-align:center;
     }
-
-    @media (max-width:760px){
-      #side{ width:280px; }
-    }
   </style>
 </head>
 <body>
@@ -195,11 +196,13 @@
       <button id="toggle" title="收起/展开">≡</button>
       <div class="ttl" id="sideTitle">时间轴画板</div>
     </div>
+
+    <div id="list"></div>
+
     <div class="actions">
       <a class="btn" id="btnHome" href="/">返回主站</a>
       <a class="btn" id="btnUp" href="/hs/timeline/">返回上级</a>
     </div>
-    <div id="list"></div>
   </aside>
 
   <div id="stage">
@@ -227,7 +230,6 @@
   const btnUp = document.getElementById("btnUp");
   const toast = document.getElementById("toast");
 
-  // defaults
   const DEFAULT_NAV = "/hs/timeline/index";
   let src = qs.get("src") || "hs/timeline/all-timelines.canvas";
   let nav = qs.get("nav") || DEFAULT_NAV;
@@ -243,12 +245,11 @@
     toast.textContent = msg;
     toast.style.display = "block";
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toast.style.display = "none", 2200);
+    showToast._t = setTimeout(() => toast.style.display = "none", 1800);
   }
 
   function normalizePath(p){
     if(!p) return "";
-    // allow absolute like /hs/xxx or relative hs/xxx
     if (p.startsWith("http://") || p.startsWith("https://")) return p;
     if (!p.startsWith("/")) return "/" + p;
     return p;
@@ -262,7 +263,6 @@
     return up === "//" ? "/" : up;
   }
 
-  // sidebar toggle
   toggle.addEventListener("click", () => {
     side.classList.toggle("collapsed");
   });
@@ -341,15 +341,12 @@
     }
   }
 
-  function nodeTitle(n){
-    // priority: label > file > first line of text > (no id unless absolutely needed)
+  // IMPORTANT: text node 不要标题（避免 1/1 这种重复）
+  function titleForNode(n){
+    if (n.type === "text") return ""; // 彻底不显示标题行
     if (n.label && String(n.label).trim()) return String(n.label).trim();
     if (n.type === "file" && n.file) return String(n.file).split("/").pop();
-    if (n.type === "text" && n.text){
-      const t = String(n.text).trim();
-      if (t) return t.split("\n")[0].slice(0, 60);
-    }
-    return "node";
+    return "";
   }
 
   function createNode(n){
@@ -358,9 +355,13 @@
     el.style.left = (n.x ?? 0) + "px";
     el.style.top  = (n.y ?? 0) + "px";
 
-    const title = document.createElement("div");
-    title.className = "title";
-    title.textContent = nodeTitle(n);
+    const t = titleForNode(n);
+    if (t){
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = t;
+      el.appendChild(title);
+    }
 
     const body = document.createElement("div");
     body.className = "body";
@@ -369,12 +370,8 @@
       body.textContent = n.text || "";
     } else if (n.type === "file" && n.file){
       let href = n.file;
-
-      // index.md -> directory
       if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
-      // md -> html
       else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
-
       href = normalizePath(href);
       body.innerHTML = `文件：<a href="${href}">${n.file}</a>`;
     } else if (n.type === "link" && n.url){
@@ -383,7 +380,6 @@
       body.textContent = n.text || n.file || n.url || "";
     }
 
-    el.appendChild(title);
     el.appendChild(body);
     nodesEl.appendChild(el);
 
@@ -423,7 +419,6 @@
 
   async function loadCanvas(path){
     src = path || src;
-    // update up link
     btnUp.href = deduceUpFromSrc();
 
     const url = normalizePath(src.replace(/^\/+/, ""));
@@ -433,20 +428,14 @@
     const data = await res.json();
 
     clearCanvas();
+    for (const n of (data.nodes || [])) createNode(n);
 
-    for (const n of (data.nodes || [])){
-      createNode(n);
-    }
-    edges = (data.edges || []).map(e => ({
-      fromNode: e.fromNode,
-      toNode: e.toNode
-    }));
+    edges = (data.edges || []).map(e => ({ fromNode: e.fromNode, toNode: e.toNode }));
 
     wires.setAttribute("width", "50000");
     wires.setAttribute("height", "50000");
     requestAnimationFrame(drawWires);
 
-    // keep URL in sync (so you can copy current link)
     const u = new URL(location.href);
     u.searchParams.set("src", src);
     u.searchParams.set("nav", nav);
@@ -461,7 +450,6 @@
 
   async function loadNavFromPage(navPath){
     nav = navPath || nav;
-    // we fetch rendered html. your rewriter makes /hs/timeline/index work as html route.
     const navUrl = normalizePath(nav);
     const res = await fetch(navUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`目录页加载失败：${nav} (${res.status})`);
@@ -470,7 +458,6 @@
     const doc = new DOMParser().parseFromString(html, "text/html");
     const links = [...doc.querySelectorAll("a[href]")];
 
-    // pick all links that point to this canvas viewer and have src=...
     const items = [];
     for (const a of links){
       const href = a.getAttribute("href") || "";
@@ -479,9 +466,7 @@
         const abs = new URL(href, location.origin);
         const s = abs.searchParams.get("src");
         if (!s) continue;
-        // keep only .canvas targets (optional but safer)
         if (!s.endsWith(".canvas")) continue;
-
         items.push({
           label: (a.textContent || "").trim() || s,
           src: s
@@ -489,7 +474,6 @@
       }catch(_){}
     }
 
-    // render list
     listEl.innerHTML = "";
     if (!items.length){
       listEl.innerHTML = `<div style="padding:10px 12px; color:rgba(255,255,255,.75); font-size:13px; line-height:1.5">
@@ -515,48 +499,31 @@
       row.appendChild(small);
 
       row.addEventListener("click", async () => {
-        try{
-          await loadCanvas(it.src);
-          setActiveItem(it.src);
-          showToast("已切换画板：" + it.label);
-        }catch(err){
-          alert(err.message);
-          console.error(err);
-        }
+        await loadCanvas(it.src);
+        setActiveItem(it.src);
+        showToast("已切换画板：" + it.label);
       });
 
       listEl.appendChild(row);
     }
 
-    // set active
     setActiveItem(src);
   }
 
   async function boot(){
-    // basic links
     btnHome.href = "/";
     btnUp.href = deduceUpFromSrc();
-
-    // title can be customized by nav page title, but keep simple:
     sideTitle.textContent = "时间轴画板";
 
-    try{
-      await loadNavFromPage(nav);
-    }catch(err){
-      console.warn(err);
-      // still try load canvas even if nav fails
-    }
-
-    try{
-      await loadCanvas(src);
-      setActiveItem(src);
-    }catch(err){
-      alert(err.message + "\n\n你可以检查：\n1) .canvas 是否已被部署（路径能打开）\n2) 链接里的 src 是否正确\n3) nav 页面是否存在");
-      console.error(err);
-    }
+    try{ await loadNavFromPage(nav); }catch(_){}
+    await loadCanvas(src);
+    setActiveItem(src);
   }
 
-  boot();
+  boot().catch(err => {
+    alert(err.message);
+    console.error(err);
+  });
 })();
 </script>
 </body>

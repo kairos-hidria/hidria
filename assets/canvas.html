@@ -5,163 +5,201 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Canvas</title>
   <style>
-    html, body { height:100%; margin:0; background:#0b0f17; color:rgba(255,255,255,.9); overflow:hidden; }
-
-    /* ===== Sidebar ===== */
     :root{
-      --sbw: 300px;
-      --line: rgba(255,255,255,.12);
-      --panel: rgba(0,0,0,.35);
-      --panel2: rgba(255,255,255,.06);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --accent: rgba(160,210,255,.95);
+      --bg:#0b0f17;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.65);
+      --line:rgba(255,255,255,.12);
+      --shadow:0 12px 40px rgba(0,0,0,.35);
+      --r:18px;
+      --accent:rgba(160,210,255,.95);
+      --accent2:rgba(160,210,255,.55);
     }
-    #sidebar{
-      position:fixed; left:12px; top:12px; bottom:12px;
-      width:var(--sbw);
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:16px;
-      backdrop-filter: blur(10px);
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
-      z-index:80;
-      display:flex; flex-direction:column;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+      background:var(--bg);
+      color:var(--text);
       overflow:hidden;
-      transform: translateX(0);
-      transition: transform .18s ease;
     }
-    body.sb-collapsed #sidebar{ transform: translateX(calc(-1 * (var(--sbw) + 18px))); }
 
-    #sbTop{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:10px 10px 8px;
+    /* layout */
+    #app{position:absolute; inset:0; display:flex}
+    #side{
+      width:320px; max-width:78vw;
+      border-right:1px solid var(--line);
+      background:rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      display:flex; flex-direction:column;
+      transition: width .18s ease;
+    }
+    #side.collapsed{ width:56px; }
+    #side .hdr{
+      display:flex; align-items:center; gap:10px;
+      padding:12px 12px;
       border-bottom:1px solid var(--line);
-      gap:10px;
     }
-    .sbTitle{ font:700 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
-    .sbBtn{
-      cursor:pointer;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:12px;
-      padding:8px 10px;
-      color:var(--text);
-      font:600 12px/1 system-ui;
-      user-select:none;
-      text-decoration:none;
-      display:inline-flex; align-items:center; gap:6px;
+    #side .hdr .ttl{
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size:14px;
       white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      flex:1;
+      opacity:.95;
     }
-    .sbBtn:hover{ border-color: rgba(160,210,255,.45); }
+    #toggle{
+      width:34px; height:34px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      display:grid; place-items:center;
+    }
+    #toggle:hover{ background:rgba(255,255,255,.10); }
 
-    #sbBody{ padding:10px; overflow:auto; }
-    .group{ margin-bottom:12px; }
-    .group h4{
-      margin:10px 0 8px; font:700 12px/1.2 system-ui;
-      color:var(--muted); letter-spacing:.2px;
+    #side .actions{
+      display:flex; gap:8px;
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
     }
-    .links{ display:flex; flex-direction:column; gap:8px; }
-    .link{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
+    #side.collapsed .actions{ display:none; }
+
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
       padding:10px 10px;
       border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:var(--panel2);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
       color:var(--text);
       text-decoration:none;
-      font:600 13px/1.2 system-ui;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
     }
-    .link small{ color:var(--muted); font-weight:500; }
-    .link:hover{ border-color: rgba(160,210,255,.35); }
-    #search{
-      width:100%;
-      box-sizing:border-box;
+    .btn:hover{ background:rgba(255,255,255,.10); }
+
+    #list{
+      padding:10px 8px 12px;
+      overflow:auto;
+    }
+    #side.collapsed #list{ display:none; }
+
+    .item{
+      display:flex; align-items:center; gap:10px;
       padding:10px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      outline:none;
-      font:600 13px/1 system-ui;
+      border-radius:14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      user-select:none;
     }
-    #search::placeholder{ color: rgba(255,255,255,.45); font-weight:500; }
-
-    /* Sidebar toggle floating button (when collapsed) */
-    #openSidebar{
-      position:fixed; left:12px; top:12px;
-      z-index:90;
-      display:none;
+    .item:hover{
+      border-color:var(--line);
+      background:rgba(255,255,255,.06);
     }
-    body.sb-collapsed #openSidebar{ display:inline-flex; }
+    .item.active{
+      border-color:rgba(160,210,255,.30);
+      background:rgba(160,210,255,.10);
+    }
+    .item .name{
+      flex:1;
+      color:rgba(255,255,255,.88);
+      font-size:13px;
+      line-height:1.2;
+    }
+    .item .src{
+      color:var(--muted);
+      font-size:12px;
+      max-width:40%;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-    /* ===== Stage / nodes ===== */
-    #stage { position:absolute; inset:0; cursor:grab; }
-    #viewport { position:absolute; left:0; top:0; transform-origin: 0 0; }
-    svg { position:absolute; left:0; top:0; overflow:visible; }
+    /* stage */
+    #stage{
+      position:relative;
+      flex:1;
+      cursor:grab;
+    }
+    #stage.grabbing{ cursor:grabbing; }
+    #viewport{ position:absolute; left:0; top:0; transform-origin:0 0; }
+    svg{ position:absolute; left:0; top:0; overflow:visible; }
 
-    .node {
+    /* nodes */
+    .node{
       position:absolute;
       min-width:180px;
-      max-width:560px;
-      background:rgba(255,255,255,.06);
+      max-width:460px;
+      background:var(--panel);
       border:1px solid rgba(255,255,255,.14);
       border-radius:16px;
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
+      box-shadow:var(--shadow);
       backdrop-filter: blur(10px);
       padding:12px 12px 10px;
       user-select:none;
     }
-    .node .title { font-weight:800; margin:0 0 8px; font-size:14px; opacity:.95; }
-    .node .body  { font-size:13px; line-height:1.55; opacity:.86; white-space:pre-wrap; }
-    .node a { color:var(--accent); text-decoration:none; }
-    .node a:hover { text-decoration:underline; }
-    .dragging { outline:2px solid rgba(160,210,255,.55); }
+    .node .title{
+      font-weight:800;
+      margin:0 0 8px;
+      font-size:13px;
+      opacity:.95;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .node .body{
+      font-size:13px;
+      line-height:1.55;
+      opacity:.86;
+      white-space:pre-wrap;
+    }
+    .node a{ color:var(--accent); text-decoration:none; }
+    .node a:hover{ text-decoration:underline; }
+    .dragging{ outline:2px solid rgba(160,210,255,.55); }
 
-    /* Make room for sidebar (optional) */
-    body:not(.sb-collapsed) #stage{ padding-left: 0; } /* 画布不需要让位，能覆盖全屏也OK */
+    /* small toast */
+    #toast{
+      position:fixed;
+      left:50%;
+      bottom:16px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.38);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:13px;
+      color:rgba(255,255,255,.88);
+      backdrop-filter: blur(10px);
+      display:none;
+      z-index:99;
+      max-width:min(520px,92vw);
+      text-align:center;
+    }
 
-    @media (max-width: 560px){
-      :root{ --sbw: 86vw; }
+    @media (max-width:760px){
+      #side{ width:280px; }
     }
   </style>
 </head>
-
 <body>
-  <!-- Collapsed opener -->
-  <div class="sbBtn" id="openSidebar">☰ 菜单</div>
-
-  <!-- Sidebar -->
-  <aside id="sidebar">
-    <div id="sbTop">
-      <div class="sbTitle">Canvas 导航</div>
-      <div style="display:flex; gap:8px;">
-        <div class="sbBtn" id="toggleSidebar">收起</div>
-      </div>
+<div id="app">
+  <aside id="side">
+    <div class="hdr">
+      <button id="toggle" title="收起/展开">≡</button>
+      <div class="ttl" id="sideTitle">时间轴画板</div>
     </div>
-
-    <div id="sbBody">
-      <div class="group">
-        <h4>快捷</h4>
-        <div class="links" id="quickLinks"></div>
-      </div>
-
-      <div class="group">
-        <h4>Canvas 目录</h4>
-        <input id="search" placeholder="搜索画板标题…" />
-        <div style="height:10px"></div>
-        <div class="links" id="canvasLinks"></div>
-      </div>
-
-      <div class="group">
-        <h4>提示</h4>
-        <div style="color:var(--muted); font:600 12px/1.5 system-ui;">
-          进入方式：<span style="color:var(--accent)">/assets/canvas.html?src=路径.canvas</span><br/>
-          拖拽节点 / 滚轮缩放 / 按空白拖动画布
-        </div>
-      </div>
+    <div class="actions">
+      <a class="btn" id="btnHome" href="/">返回主站</a>
+      <a class="btn" id="btnUp" href="/hs/timeline/">返回上级</a>
     </div>
+    <div id="list"></div>
   </aside>
 
   <div id="stage">
@@ -170,105 +208,29 @@
       <div id="nodes"></div>
     </div>
   </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
 (() => {
-  /* =========================================================
-     ✅ 你只需要维护这里：中文标题 + 英文路径
-     路径建议用英文（稳定），标题随便中文（展示）
-     ========================================================= */
-  const CANVAS_CATALOG = [
-    { title: "全时间轴总览", src: "hs/timeline/all-timelines.canvas", hint: "Hidria / Timeline" },
-    // 你可以继续往下加：
-    // { title: "谢尔比亚编年史", src: "hs/timeline/shelbia.canvas", hint: "地区线" },
-    // { title: "永眠教廷时间线", src: "hs/timeline/eternal-sleep-church.canvas", hint: "组织线" },
-  ];
-
-  /* ===================== Query / URLs ===================== */
   const qs = new URLSearchParams(location.search);
-  const src = qs.get("src") || (CANVAS_CATALOG[0]?.src ?? "timeline.canvas");
-
-  // 主站返回地址：你想回哪就改这里（也可在 url 里加 ?home=/trpg/ 之类）
-  const HOME = qs.get("home") || "/";
-
-  // 生成“上级页”：按 src 所在目录推导到目录 index（/xxx/）
-  function upHrefFromSrc(s){
-    if (!s) return HOME;
-    const path = s.replace(/^\/+/, "");
-    const parts = path.split("/").filter(Boolean);
-    if (parts.length <= 1) return HOME;
-    parts.pop(); // remove filename
-    return "/" + parts.join("/") + "/"; // directory
-  }
-
-  const UP = qs.get("up") || upHrefFromSrc(src);
-
-  function viewerUrlFor(canvasSrc){
-    const u = new URL(location.href);
-    u.pathname = "/assets/canvas.html";
-    u.searchParams.set("src", canvasSrc);
-    // 保持 home/up（可选）
-    if (!u.searchParams.get("home")) u.searchParams.set("home", HOME);
-    if (!u.searchParams.get("up"))   u.searchParams.set("up", upHrefFromSrc(canvasSrc));
-    return u.toString();
-  }
-
-  /* ===================== Sidebar UI ===================== */
-  const body = document.body;
-  const openSidebar = document.getElementById("openSidebar");
-  const toggleSidebar = document.getElementById("toggleSidebar");
-  const quickLinks = document.getElementById("quickLinks");
-  const canvasLinks = document.getElementById("canvasLinks");
-  const search = document.getElementById("search");
-
-  // collapse toggle
-  function setCollapsed(v){
-    body.classList.toggle("sb-collapsed", v);
-    try{ localStorage.setItem("canvasSidebarCollapsed", v ? "1" : "0"); }catch(e){}
-  }
-  const saved = (() => { try{ return localStorage.getItem("canvasSidebarCollapsed"); }catch(e){ return null; }})();
-  setCollapsed(saved === "1");
-
-  toggleSidebar.addEventListener("click", () => setCollapsed(true));
-  openSidebar.addEventListener("click", () => setCollapsed(false));
-
-  // quick links
-  function addQuick(title, href){
-    const a = document.createElement("a");
-    a.className = "link";
-    a.href = href;
-    a.innerHTML = `<span>${title}</span><small>→</small>`;
-    quickLinks.appendChild(a);
-  }
-  addQuick("← 返回主站", HOME);
-  addQuick("↑ 返回上级", UP);
-
-  // build catalog list
-  function renderCatalog(filterText=""){
-    canvasLinks.innerHTML = "";
-    const ft = filterText.trim().toLowerCase();
-
-    for (const item of CANVAS_CATALOG){
-      const t = (item.title || "").toLowerCase();
-      const h = (item.hint || "").toLowerCase();
-      if (ft && !(t.includes(ft) || h.includes(ft))) continue;
-
-      const a = document.createElement("a");
-      a.className = "link";
-      a.href = viewerUrlFor(item.src);
-      const hint = item.hint ? `<small>${item.hint}</small>` : `<small>${item.src}</small>`;
-      a.innerHTML = `<span>${item.title}</span>${hint}`;
-      canvasLinks.appendChild(a);
-    }
-  }
-  renderCatalog();
-  search.addEventListener("input", () => renderCatalog(search.value));
-
-  /* ===================== Canvas viewer ===================== */
   const stage = document.getElementById("stage");
   const viewport = document.getElementById("viewport");
   const nodesEl = document.getElementById("nodes");
   const wires = document.getElementById("wires");
+  const listEl = document.getElementById("list");
+  const side = document.getElementById("side");
+  const toggle = document.getElementById("toggle");
+  const sideTitle = document.getElementById("sideTitle");
+  const btnHome = document.getElementById("btnHome");
+  const btnUp = document.getElementById("btnUp");
+  const toast = document.getElementById("toast");
+
+  // defaults
+  const DEFAULT_NAV = "/hs/timeline/index";
+  let src = qs.get("src") || "hs/timeline/all-timelines.canvas";
+  let nav = qs.get("nav") || DEFAULT_NAV;
 
   // view state
   let panX = 0, panY = 0, scale = 1;
@@ -277,12 +239,40 @@
   }
   applyTransform();
 
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.style.display = "none", 2200);
+  }
+
+  function normalizePath(p){
+    if(!p) return "";
+    // allow absolute like /hs/xxx or relative hs/xxx
+    if (p.startsWith("http://") || p.startsWith("https://")) return p;
+    if (!p.startsWith("/")) return "/" + p;
+    return p;
+  }
+
+  function deduceUpFromSrc(){
+    const clean = src.replace(/^\/+/, "");
+    const parts = clean.split("/");
+    parts.pop();
+    const up = "/" + parts.join("/") + "/";
+    return up === "//" ? "/" : up;
+  }
+
+  // sidebar toggle
+  toggle.addEventListener("click", () => {
+    side.classList.toggle("collapsed");
+  });
+
   // pan
   let panning = false, panStart = null;
   stage.addEventListener("mousedown", (e) => {
     if (e.target.closest(".node")) return;
     panning = true;
-    stage.style.cursor = "grabbing";
+    stage.classList.add("grabbing");
     panStart = { x: e.clientX, y: e.clientY, panX, panY };
   });
   window.addEventListener("mousemove", (e) => {
@@ -293,7 +283,7 @@
   });
   window.addEventListener("mouseup", () => {
     panning = false;
-    stage.style.cursor = "grab";
+    stage.classList.remove("grabbing");
   });
 
   // zoom
@@ -324,18 +314,6 @@
     const w = el.offsetWidth, h = el.offsetHeight;
     return { x: x + w/2, y: y + h/2 };
   }
-  function safeBasename(p){
-    const s = (p || "").replace(/\\/g,"/").split("/").filter(Boolean).pop() || "";
-    return s || p || "";
-  }
-  function splitTextTitleBody(text){
-    const t = (text || "").trim();
-    if (!t) return { title: "文本", body: "" };
-    const lines = t.split(/\r?\n/);
-    const title = (lines[0] || "").trim() || "文本";
-    const body = lines.slice(1).join("\n").trim();
-    return { title, body };
-  }
 
   const nodeMap = new Map();
   let edges = [];
@@ -363,12 +341,15 @@
     }
   }
 
-  function mdPathToHtmlHref(mdPath){
-    let href = mdPath;
-    if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
-    else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
-    href = "/" + href.replace(/^\/+/, "");
-    return href;
+  function nodeTitle(n){
+    // priority: label > file > first line of text > (no id unless absolutely needed)
+    if (n.label && String(n.label).trim()) return String(n.label).trim();
+    if (n.type === "file" && n.file) return String(n.file).split("/").pop();
+    if (n.type === "text" && n.text){
+      const t = String(n.text).trim();
+      if (t) return t.split("\n")[0].slice(0, 60);
+    }
+    return "node";
   }
 
   function createNode(n){
@@ -379,29 +360,31 @@
 
     const title = document.createElement("div");
     title.className = "title";
+    title.textContent = nodeTitle(n);
 
     const body = document.createElement("div");
     body.className = "body";
 
-    // ✅ 不显示 id：标题优先 label / file basename / text第一行
     if (n.type === "text"){
-      const tb = splitTextTitleBody(n.text || "");
-      title.textContent = tb.title;
-      body.textContent = tb.body;
+      body.textContent = n.text || "";
     } else if (n.type === "file" && n.file){
-      title.textContent = safeBasename(n.file);
-      const href = mdPathToHtmlHref(n.file);
+      let href = n.file;
+
+      // index.md -> directory
+      if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
+      // md -> html
+      else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
+
+      href = normalizePath(href);
       body.innerHTML = `文件：<a href="${href}">${n.file}</a>`;
     } else if (n.type === "link" && n.url){
-      title.textContent = n.label || "外部链接";
       body.innerHTML = `链接：<a href="${n.url}" target="_blank" rel="noreferrer">${n.url}</a>`;
     } else {
-      title.textContent = n.label || "节点";
       body.textContent = n.text || n.file || n.url || "";
     }
 
     el.appendChild(title);
-    if ((body.textContent || body.innerHTML || "").trim()) el.appendChild(body);
+    el.appendChild(body);
     nodesEl.appendChild(el);
 
     // drag node
@@ -431,32 +414,149 @@
     nodeMap.set(n.id, { el, data:n });
   }
 
-  async function loadCanvas(){
-    const url = /^https?:\/\//i.test(src) ? src : ("/" + src.replace(/^\/+/,""));
+  function clearCanvas(){
+    nodesEl.innerHTML = "";
+    wires.innerHTML = "";
+    nodeMap.clear();
+    edges = [];
+  }
+
+  async function loadCanvas(path){
+    src = path || src;
+    // update up link
+    btnUp.href = deduceUpFromSrc();
+
+    const url = normalizePath(src.replace(/^\/+/, ""));
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(`加载失败：${src} (${res.status})`);
+
     const data = await res.json();
 
-    // reset
-    nodesEl.innerHTML = "";
-    nodeMap.clear();
+    clearCanvas();
 
-    for (const n of (data.nodes || [])) createNode(n);
-    edges = (data.edges || []).map(e => ({ fromNode: e.fromNode, toNode: e.toNode }));
+    for (const n of (data.nodes || [])){
+      createNode(n);
+    }
+    edges = (data.edges || []).map(e => ({
+      fromNode: e.fromNode,
+      toNode: e.toNode
+    }));
 
     wires.setAttribute("width", "50000");
     wires.setAttribute("height", "50000");
     requestAnimationFrame(drawWires);
 
-    // 页面 title 用目录里匹配到的中文标题（更像“页面名”）
-    const match = CANVAS_CATALOG.find(x => x.src === src);
-    if (match?.title) document.title = match.title;
+    // keep URL in sync (so you can copy current link)
+    const u = new URL(location.href);
+    u.searchParams.set("src", src);
+    u.searchParams.set("nav", nav);
+    history.replaceState({}, "", u.toString());
   }
 
-  loadCanvas().catch(err => {
-    alert(err.message + "\n\n用法：/assets/canvas.html?src=路径.canvas");
-    console.error(err);
-  });
+  function setActiveItem(activeSrc){
+    [...listEl.querySelectorAll(".item")].forEach(el => {
+      el.classList.toggle("active", el.dataset.src === activeSrc);
+    });
+  }
+
+  async function loadNavFromPage(navPath){
+    nav = navPath || nav;
+    // we fetch rendered html. your rewriter makes /hs/timeline/index work as html route.
+    const navUrl = normalizePath(nav);
+    const res = await fetch(navUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`目录页加载失败：${nav} (${res.status})`);
+
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const links = [...doc.querySelectorAll("a[href]")];
+
+    // pick all links that point to this canvas viewer and have src=...
+    const items = [];
+    for (const a of links){
+      const href = a.getAttribute("href") || "";
+      if (!href.includes("/assets/canvas.html")) continue;
+      try{
+        const abs = new URL(href, location.origin);
+        const s = abs.searchParams.get("src");
+        if (!s) continue;
+        // keep only .canvas targets (optional but safer)
+        if (!s.endsWith(".canvas")) continue;
+
+        items.push({
+          label: (a.textContent || "").trim() || s,
+          src: s
+        });
+      }catch(_){}
+    }
+
+    // render list
+    listEl.innerHTML = "";
+    if (!items.length){
+      listEl.innerHTML = `<div style="padding:10px 12px; color:rgba(255,255,255,.75); font-size:13px; line-height:1.5">
+        目录为空：请在 <b>${nav}</b> 里写 <code>/assets/canvas.html?src=...</code> 的链接。
+      </div>`;
+      return;
+    }
+
+    for (const it of items){
+      const row = document.createElement("div");
+      row.className = "item";
+      row.dataset.src = it.src;
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = it.label;
+
+      const small = document.createElement("div");
+      small.className = "src";
+      small.textContent = it.src.split("/").pop();
+
+      row.appendChild(name);
+      row.appendChild(small);
+
+      row.addEventListener("click", async () => {
+        try{
+          await loadCanvas(it.src);
+          setActiveItem(it.src);
+          showToast("已切换画板：" + it.label);
+        }catch(err){
+          alert(err.message);
+          console.error(err);
+        }
+      });
+
+      listEl.appendChild(row);
+    }
+
+    // set active
+    setActiveItem(src);
+  }
+
+  async function boot(){
+    // basic links
+    btnHome.href = "/";
+    btnUp.href = deduceUpFromSrc();
+
+    // title can be customized by nav page title, but keep simple:
+    sideTitle.textContent = "时间轴画板";
+
+    try{
+      await loadNavFromPage(nav);
+    }catch(err){
+      console.warn(err);
+      // still try load canvas even if nav fails
+    }
+
+    try{
+      await loadCanvas(src);
+      setActiveItem(src);
+    }catch(err){
+      alert(err.message + "\n\n你可以检查：\n1) .canvas 是否已被部署（路径能打开）\n2) 链接里的 src 是否正确\n3) nav 页面是否存在");
+      console.error(err);
+    }
+  }
+
+  boot();
 })();
 </script>
 </body>

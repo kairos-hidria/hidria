@@ -5,79 +5,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Canvas</title>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #0b0f17;
-      color: rgba(255,255,255,.9);
-      overflow: hidden;
+    html, body { height:100%; margin:0; background:#0b0f17; color:rgba(255,255,255,.9); overflow:hidden; }
+    .hint { position:fixed; left:12px; top:12px; z-index:50; font:14px/1.4 system-ui;
+      background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.12); border-radius:12px;
+      padding:10px 12px; backdrop-filter: blur(10px);
     }
-
-    .hint {
-      position: fixed;
-      left: 12px;
-      top: 12px;
-      z-index: 50;
-      font: 14px/1.4 system-ui;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-      padding: 10px 12px;
-      backdrop-filter: blur(10px);
-    }
-
-    .hint code {
-      background: rgba(255,255,255,.08);
-      padding: 0 .35em;
-      border-radius: 8px;
-    }
-
-    #stage { position: absolute; inset: 0; cursor: grab; }
-    #viewport { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
-    svg { position: absolute; left: 0; top: 0; overflow: visible; }
-
+    .hint code{background:rgba(255,255,255,.08); padding:0 .35em; border-radius:8px;}
+    #stage { position:absolute; inset:0; cursor:grab; }
+    #viewport { position:absolute; left:0; top:0; transform-origin: 0 0; }
+    svg { position:absolute; left:0; top:0; overflow:visible; }
     .node {
-      position: absolute;
-      min-width: 180px;
-      max-width: 420px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 16px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      position:absolute;
+      min-width:180px;
+      max-width:420px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
       backdrop-filter: blur(10px);
-      padding: 12px 12px 10px;
-      user-select: none;
+      padding:12px 12px 10px;
+      user-select:none;
     }
-
-    .node .title {
-      font-weight: 800;
-      margin: 0 0 8px;
-      font-size: 14px;
-      opacity: .95;
-    }
-
-    .node .body {
-      font-size: 13px;
-      line-height: 1.55;
-      opacity: .86;
-      white-space: pre-wrap;
-    }
-
-    .node a {
-      color: rgba(160,210,255,.95);
-      text-decoration: none;
-    }
-
-    .node a:hover { text-decoration: underline; }
-    .dragging { outline: 2px solid rgba(160,210,255,.55); }
+    .node .title { font-weight:800; margin:0 0 8px; font-size:14px; opacity:.95; }
+    .node .body { font-size:13px; line-height:1.55; opacity:.86; white-space:pre-wrap; }
+    .node a { color:rgba(160,210,255,.95); text-decoration:none; }
+    .node a:hover { text-decoration:underline; }
+    .dragging { outline:2px solid rgba(160,210,255,.55); }
   </style>
 </head>
-
 <body>
   <div class="hint">
     <div><b>Canvas Viewer</b></div>
-    <div>打开方式：<code>/assets/canvas.html?src=PATH_TO_CANVAS</code></div>
-    <div>拖拽节点 / 滚轮缩放 / 按住空白处拖动画布 / 按 <b>F</b> 回中</div>
+    <div>打开方式：<code>/assets/canvas.html?src=hs/timeline/all-timelines.canvas</code></div>
+    <div>也支持完整链接：<code>?src=https://hidria.pages.dev/hs/timeline/all-timelines.canvas</code></div>
+    <div>拖拽节点 / 滚轮缩放 / 按住空白处拖动画布</div>
   </div>
 
   <div id="stage">
@@ -87,273 +48,225 @@
     </div>
   </div>
 
-  <script>
-    (() => {
-      const qs = new URLSearchParams(location.search);
-      const src = qs.get("src") || "timeline.canvas";
+<script>
+(() => {
+  const qs = new URLSearchParams(location.search);
+  const src = qs.get("src") || "timeline.canvas"; // 默认文件名（相对站点根目录）
+  const stage = document.getElementById("stage");
+  const viewport = document.getElementById("viewport");
+  const nodesEl = document.getElementById("nodes");
+  const wires = document.getElementById("wires");
 
-      const stage = document.getElementById("stage");
-      const viewport = document.getElementById("viewport");
-      const nodesEl = document.getElementById("nodes");
-      const wires = document.getElementById("wires");
+  // view state
+  let panX = 0, panY = 0, scale = 1;
+  function applyTransform(){
+    viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+  }
+  applyTransform();
 
-      // view state
-      let panX = 0, panY = 0, scale = 1;
+  // pan
+  let panning = false, panStart = null;
+  stage.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".node")) return;
+    panning = true;
+    stage.style.cursor = "grabbing";
+    panStart = { x: e.clientX, y: e.clientY, panX, panY };
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!panning) return;
+    panX = panStart.panX + (e.clientX - panStart.x);
+    panY = panStart.panY + (e.clientY - panStart.y);
+    applyTransform();
+  });
+  window.addEventListener("mouseup", () => {
+    panning = false;
+    stage.style.cursor = "grab";
+  });
 
-      function applyTransform() {
-        viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-      }
-      applyTransform();
+  // zoom
+  stage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const delta = Math.sign(e.deltaY);
+    const factor = delta > 0 ? 0.92 : 1.08;
+    const next = Math.min(2.0, Math.max(0.35, scale * factor));
 
-      // robust url builder (works with root OR subpath deployment)
-      function toAbsUrl(path) {
-        const u = new URL(path, location.href);
-        u.pathname = encodeURI(u.pathname);
-        return u.toString();
-      }
+    const rect = stage.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
 
-      function mdToPageUrl(filePath) {
-        // Support:
-        // - xxx/index.md -> xxx/
-        // - xxx.md -> xxx.html
-        // - with #anchor or ?query
-        let p = filePath.replace(/\\/g, "/");
+    const worldX = (mx - panX) / scale;
+    const worldY = (my - panY) / scale;
 
-        // index.md (+ optional anchor/query)
-        if (/\/index\.md(\b|[#?])/i.test(p)) {
-          p = p.replace(/index\.md(?=($|[#?]))/i, "");
-          return p;
-        }
+    scale = next;
+    panX = mx - worldX * scale;
+    panY = my - worldY * scale;
 
-        // normal .md (+ optional anchor/query)
-        if (/\.md(\b|[#?])/i.test(p)) {
-          p = p.replace(/\.md(?=($|[#?]))/i, ".html");
-          return p;
-        }
+    applyTransform();
+  }, { passive:false });
 
-        // no suffix: keep as-is
-        return p;
-      }
+  function centerOf(el){
+    const x = parseFloat(el.style.left) || 0;
+    const y = parseFloat(el.style.top) || 0;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    return { x: x + w/2, y: y + h/2 };
+  }
 
-      // pan (drag empty space)
-      let panning = false;
-      let panStart = null;
+  const nodeMap = new Map();
+  let edges = [];
 
-      stage.addEventListener("mousedown", (e) => {
-        if (e.target.closest(".node")) return;
-        panning = true;
-        stage.style.cursor = "grabbing";
-        panStart = { x: e.clientX, y: e.clientY, panX, panY };
-      });
+  function drawWires(){
+    wires.innerHTML = "";
+    for (const e of edges){
+      const a = nodeMap.get(e.fromNode);
+      const b = nodeMap.get(e.toNode);
+      if (!a || !b) continue;
 
-      window.addEventListener("mousemove", (e) => {
-        if (!panning) return;
-        panX = panStart.panX + (e.clientX - panStart.x);
-        panY = panStart.panY + (e.clientY - panStart.y);
-        applyTransform();
-      });
+      const A = centerOf(a.el);
+      const B = centerOf(b.el);
 
-      window.addEventListener("mouseup", () => {
-        panning = false;
-        stage.style.cursor = "grab";
-      });
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const dx = Math.max(80, Math.abs(B.x - A.x) * 0.35);
+      const c1x = A.x + dx, c1y = A.y;
+      const c2x = B.x - dx, c2y = B.y;
 
-      // zoom
-      stage.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        const delta = Math.sign(e.deltaY);
-        const factor = delta > 0 ? 0.92 : 1.08;
-        const next = Math.min(2.0, Math.max(0.35, scale * factor));
+      path.setAttribute("d", `M ${A.x} ${A.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${B.x} ${B.y}`);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "rgba(160,210,255,.55)");
+      path.setAttribute("stroke-width", "2");
+      wires.appendChild(path);
+    }
+  }
 
-        const rect = stage.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
+  function toSiteHref(file){
+    // 1) 如果是 canvas，跳转到 viewer，避免“点了就下载”
+    if (/\.canvas$/i.test(file)) {
+      const u = new URL(location.href);
+      u.pathname = "/assets/canvas.html";
+      u.search = "src=" + encodeURIComponent(file.replace(/^\/+/,""));
+      return u.pathname + "?" + u.searchParams.toString();
+    }
 
-        const worldX = (mx - panX) / scale;
-        const worldY = (my - panY) / scale;
+    // 2) index.md => 目录
+    if (/\/index\.md$/i.test(file)) return "/" + file.replace(/^\/+/,"").replace(/index\.md$/i, "");
 
-        scale = next;
-        panX = mx - worldX * scale;
-        panY = my - worldY * scale;
+    // 3) 普通 .md => .html
+    if (/\.md$/i.test(file)) return "/" + file.replace(/^\/+/,"").replace(/\.md$/i, ".html");
 
-        applyTransform();
-      }, { passive: false });
+    // 4) 其他：原样
+    return "/" + file.replace(/^\/+/,"");
+  }
 
-      // helpers
-      function centerOf(el) {
-        const x = parseFloat(el.style.left) || 0;
-        const y = parseFloat(el.style.top) || 0;
-        const w = el.offsetWidth, h = el.offsetHeight;
-        return { x: x + w / 2, y: y + h / 2 };
-      }
+  function createNode(n){
+    const el = document.createElement("div");
+    el.className = "node";
+    el.style.left = (n.x ?? 0) + "px";
+    el.style.top  = (n.y ?? 0) + "px";
 
-      const nodeMap = new Map();
-      let edges = [];
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = n.label || n.file || n.id || "node";
 
-      function drawWires() {
-        wires.innerHTML = "";
-        for (const e of edges) {
-          const a = nodeMap.get(e.fromNode);
-          const b = nodeMap.get(e.toNode);
-          if (!a || !b) continue;
+    const body = document.createElement("div");
+    body.className = "body";
 
-          const A = centerOf(a.el);
-          const B = centerOf(b.el);
+    if (n.type === "text"){
+      body.textContent = n.text || "";
+    } else if (n.type === "file" && n.file){
+      const href = toSiteHref(n.file);
+      body.innerHTML = `文件：<a href="${href}">${n.file}</a>`;
+    } else if (n.type === "link" && n.url){
+      body.innerHTML = `链接：<a href="${n.url}" target="_blank" rel="noreferrer">${n.url}</a>`;
+    } else {
+      body.textContent = n.text || n.file || n.url || "";
+    }
 
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          const dx = Math.max(80, Math.abs(B.x - A.x) * 0.35);
-          const c1x = A.x + dx, c1y = A.y;
-          const c2x = B.x - dx, c2y = B.y;
+    el.appendChild(title);
+    el.appendChild(body);
+    nodesEl.appendChild(el);
 
-          path.setAttribute("d", `M ${A.x} ${A.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${B.x} ${B.y}`);
-          path.setAttribute("fill", "none");
-          path.setAttribute("stroke", "rgba(160,210,255,.55)");
-          path.setAttribute("stroke-width", "2");
+    // drag node
+    let dragging = false, start = null;
+    el.addEventListener("mousedown", (e) => {
+      e.stopPropagation();
+      dragging = true;
+      el.classList.add("dragging");
+      const x = parseFloat(el.style.left) || 0;
+      const y = parseFloat(el.style.top) || 0;
+      start = { mx:e.clientX, my:e.clientY, x, y };
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const dx = (e.clientX - start.mx) / scale;
+      const dy = (e.clientY - start.my) / scale;
+      el.style.left = (start.x + dx) + "px";
+      el.style.top  = (start.y + dy) + "px";
+      drawWires();
+    });
+    window.addEventListener("mouseup", () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove("dragging");
+    });
 
-          wires.appendChild(path);
-        }
-      }
+    nodeMap.set(n.id, { el, data:n });
+  }
 
-      // ✅ auto focus so it won't look blank
-      function fitToNodes(padding = 80) {
-        const items = [...nodeMap.values()];
-        if (!items.length) return;
+  function resolveFetchUrl(src){
+    const s = (src || "").trim();
+    if (/^https?:\/\//i.test(s)) return s;               // 完整 URL
+    return "/" + s.replace(/^\/+/,"");                  // 站点根路径
+  }
 
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  async function loadCanvas(){
+    const url = resolveFetchUrl(src);
+    const res = await fetch(url, { cache: "no-store" });
+    const text = await res.text();
 
-        for (const it of items) {
-          const n = it.data;
+    if (!res.ok){
+      throw new Error(`加载失败：${url} (${res.status})\n\n响应片段：\n${text.slice(0,200)}`);
+    }
 
-          const x = n.x ?? (parseFloat(it.el.style.left) || 0);
-          const y = n.y ?? (parseFloat(it.el.style.top) || 0);
-          const w = n.width ?? it.el.offsetWidth ?? 240;
-          const h = n.height ?? it.el.offsetHeight ?? 120;
+    // 如果返回的是 HTML（通常是 404 页面 / 重写到 index），就直接报错提示
+    const head = text.trim().slice(0, 30).toLowerCase();
+    if (head.startsWith("<!doctype") || head.startsWith("<html") || head.startsWith("<!doc")){
+      throw new Error(
+        `拿到的是 HTML 不是 JSON。\n` +
+        `说明你请求的地址被重写/不存在：\n${url}\n\n` +
+        `响应片段：\n${text.slice(0,200)}`
+      );
+    }
 
-          minX = Math.min(minX, x);
-          minY = Math.min(minY, y);
-          maxX = Math.max(maxX, x + w);
-          maxY = Math.max(maxY, y + h);
-        }
+    let data;
+    try{
+      // 兼容 BOM
+      const cleaned = text.replace(/^\uFEFF/, "");
+      data = JSON.parse(cleaned);
+    }catch(e){
+      throw new Error(`JSON 解析失败：${url}\n\n错误：${e.message}\n\n内容片段：\n${text.slice(0,200)}`);
+    }
 
-        const rect = stage.getBoundingClientRect();
-        const vw = rect.width;
-        const vh = rect.height;
+    nodesEl.innerHTML = "";
+    nodeMap.clear();
 
-        const contentW = (maxX - minX) + padding * 2;
-        const contentH = (maxY - minY) + padding * 2;
+    for (const n of (data.nodes || [])){
+      createNode(n);
+    }
 
-        scale = Math.min(1.4, Math.max(0.35, Math.min(vw / contentW, vh / contentH)));
+    edges = (data.edges || []).map(e => ({
+      fromNode: e.fromNode,
+      toNode: e.toNode
+    }));
 
-        const cx = (minX + maxX) / 2;
-        const cy = (minY + maxY) / 2;
+    wires.setAttribute("width", "50000");
+    wires.setAttribute("height", "50000");
+    requestAnimationFrame(drawWires);
+  }
 
-        panX = vw / 2 - cx * scale;
-        panY = vh / 2 - cy * scale;
-
-        applyTransform();
-      }
-
-      window.addEventListener("keydown", (e) => {
-        if (e.key.toLowerCase() === "f") fitToNodes();
-      });
-
-      function createNode(n) {
-        const el = document.createElement("div");
-        el.className = "node";
-        el.style.left = (n.x ?? 0) + "px";
-        el.style.top = (n.y ?? 0) + "px";
-
-        const title = document.createElement("div");
-        title.className = "title";
-        title.textContent = n.label || n.file || n.id || "node";
-
-        const body = document.createElement("div");
-        body.className = "body";
-
-        if (n.type === "text") {
-          body.textContent = n.text || "";
-        } else if (n.type === "file" && n.file) {
-          const pagePath = mdToPageUrl(n.file);
-          const url = toAbsUrl(pagePath);
-          body.innerHTML = `文件：<a href="${url}">${n.file}</a>`;
-        } else if (n.type === "link" && n.url) {
-          body.innerHTML = `链接：<a href="${n.url}" target="_blank" rel="noreferrer">${n.url}</a>`;
-        } else {
-          body.textContent = n.text || n.file || n.url || "";
-        }
-
-        el.appendChild(title);
-        el.appendChild(body);
-        nodesEl.appendChild(el);
-
-        // drag node
-        let dragging = false;
-        let start = null;
-
-        el.addEventListener("mousedown", (e) => {
-          e.stopPropagation();
-          dragging = true;
-          el.classList.add("dragging");
-
-          const x = parseFloat(el.style.left) || 0;
-          const y = parseFloat(el.style.top) || 0;
-          start = { mx: e.clientX, my: e.clientY, x, y };
-        });
-
-        window.addEventListener("mousemove", (e) => {
-          if (!dragging) return;
-          const dx = (e.clientX - start.mx) / scale;
-          const dy = (e.clientY - start.my) / scale;
-          el.style.left = (start.x + dx) + "px";
-          el.style.top = (start.y + dy) + "px";
-          drawWires();
-        });
-
-        window.addEventListener("mouseup", () => {
-          if (!dragging) return;
-          dragging = false;
-          el.classList.remove("dragging");
-        });
-
-        nodeMap.set(n.id, { el, data: n });
-      }
-
-      async function loadCanvas() {
-        const canvasUrl = toAbsUrl(src.replace(/^\/+/, ""));
-        const res = await fetch(canvasUrl, { cache: "no-store" });
-
-        if (!res.ok) {
-          throw new Error(`加载失败：${src} (${res.status})`);
-        }
-
-        const data = await res.json();
-
-        nodesEl.innerHTML = "";
-        nodeMap.clear();
-
-        for (const n of (data.nodes || [])) {
-          createNode(n);
-        }
-
-        edges = (data.edges || []).map(e => ({
-          fromNode: e.fromNode,
-          toNode: e.toNode
-        }));
-
-        wires.setAttribute("width", "50000");
-        wires.setAttribute("height", "50000");
-
-        requestAnimationFrame(() => {
-          fitToNodes();   // ✅ make sure not blank
-          drawWires();
-        });
-      }
-
-      loadCanvas().catch(err => {
-        alert(err.message + "\n\n你可以用：/assets/canvas.html?src=你的.canvas路径");
-        console.error(err);
-      });
-    })();
-  </script>
+  loadCanvas().catch(err => {
+    alert(err.message + "\n\n你可以用：/assets/canvas.html?src=hs/timeline/all-timelines.canvas");
+    console.error(err);
+  });
+})();
+</script>
 </body>
 </html>

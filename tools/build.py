@@ -90,7 +90,8 @@ if (ROOT / "assets").exists():
 keep = {
     ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".pdf",
     ".css", ".js", ".json", ".yml", ".yaml",
-    ".woff", ".woff2", ".ttf", ".otf", ".mp3", ".ogg"
+    ".woff", ".woff2", ".ttf", ".otf", ".mp3", ".ogg",
+    ".canvas"
 }
 
 for f in ROOT.rglob("*"):

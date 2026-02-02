@@ -1,5 +1,5 @@
-# 设定总览（HS）
+[返回主页](/index)
 
-施工中。
-[[hs/characters/index|人物档案]]
-
+# 希德里亚设定（HS）
+---
+[时间轴](/hs/timeline/index)

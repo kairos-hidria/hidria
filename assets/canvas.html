@@ -6,46 +6,105 @@
   <title>Canvas</title>
   <style>
     html, body { height:100%; margin:0; background:#0b0f17; color:rgba(255,255,255,.9); overflow:hidden; }
+
+    /* ===== Sidebar ===== */
+    :root{
+      --sbw: 300px;
+      --line: rgba(255,255,255,.12);
+      --panel: rgba(0,0,0,.35);
+      --panel2: rgba(255,255,255,.06);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --accent: rgba(160,210,255,.95);
+    }
+    #sidebar{
+      position:fixed; left:12px; top:12px; bottom:12px;
+      width:var(--sbw);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      backdrop-filter: blur(10px);
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
+      z-index:80;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transform: translateX(0);
+      transition: transform .18s ease;
+    }
+    body.sb-collapsed #sidebar{ transform: translateX(calc(-1 * (var(--sbw) + 18px))); }
+
+    #sbTop{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 10px 8px;
+      border-bottom:1px solid var(--line);
+      gap:10px;
+    }
+    .sbTitle{ font:700 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .sbBtn{
+      cursor:pointer;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      padding:8px 10px;
+      color:var(--text);
+      font:600 12px/1 system-ui;
+      user-select:none;
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:6px;
+      white-space:nowrap;
+    }
+    .sbBtn:hover{ border-color: rgba(160,210,255,.45); }
+
+    #sbBody{ padding:10px; overflow:auto; }
+    .group{ margin-bottom:12px; }
+    .group h4{
+      margin:10px 0 8px; font:700 12px/1.2 system-ui;
+      color:var(--muted); letter-spacing:.2px;
+    }
+    .links{ display:flex; flex-direction:column; gap:8px; }
+    .link{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:var(--panel2);
+      color:var(--text);
+      text-decoration:none;
+      font:600 13px/1.2 system-ui;
+    }
+    .link small{ color:var(--muted); font-weight:500; }
+    .link:hover{ border-color: rgba(160,210,255,.35); }
+    #search{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+      font:600 13px/1 system-ui;
+    }
+    #search::placeholder{ color: rgba(255,255,255,.45); font-weight:500; }
+
+    /* Sidebar toggle floating button (when collapsed) */
+    #openSidebar{
+      position:fixed; left:12px; top:12px;
+      z-index:90;
+      display:none;
+    }
+    body.sb-collapsed #openSidebar{ display:inline-flex; }
+
+    /* ===== Stage / nodes ===== */
     #stage { position:absolute; inset:0; cursor:grab; }
     #viewport { position:absolute; left:0; top:0; transform-origin: 0 0; }
     svg { position:absolute; left:0; top:0; overflow:visible; }
 
-    /* Top bar (back/home + optional help) */
-    .bar{
-      position:fixed; left:12px; top:12px; z-index:60;
-      display:flex; gap:10px; align-items:flex-start;
-      font:14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-    }
-    .btn{
-      cursor:pointer;
-      background:rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:12px;
-      padding:10px 12px;
-      color:rgba(255,255,255,.92);
-      backdrop-filter: blur(10px);
-      user-select:none;
-      text-decoration:none;
-      display:inline-block;
-      white-space:nowrap;
-    }
-    .btn:hover{ border-color: rgba(160,210,255,.45); }
-
-    .help{
-      background:rgba(0,0,0,.30);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:12px;
-      padding:10px 12px;
-      backdrop-filter: blur(10px);
-      max-width:420px;
-      display:none;
-    }
-    .help code{background:rgba(255,255,255,.08); padding:0 .35em; border-radius:8px;}
-
     .node {
       position:absolute;
       min-width:180px;
-      max-width:520px;
+      max-width:560px;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.14);
       border-radius:16px;
@@ -55,26 +114,55 @@
       user-select:none;
     }
     .node .title { font-weight:800; margin:0 0 8px; font-size:14px; opacity:.95; }
-    .node .body { font-size:13px; line-height:1.55; opacity:.86; white-space:pre-wrap; }
-    .node a { color:rgba(160,210,255,.95); text-decoration:none; }
+    .node .body  { font-size:13px; line-height:1.55; opacity:.86; white-space:pre-wrap; }
+    .node a { color:var(--accent); text-decoration:none; }
     .node a:hover { text-decoration:underline; }
     .dragging { outline:2px solid rgba(160,210,255,.55); }
+
+    /* Make room for sidebar (optional) */
+    body:not(.sb-collapsed) #stage{ padding-left: 0; } /* 画布不需要让位，能覆盖全屏也OK */
+
+    @media (max-width: 560px){
+      :root{ --sbw: 86vw; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="bar">
-    <!-- ✅ 回主站：你可以把 href 改成你想回去的页面，比如 /index.html 或 / -->
-    <a class="btn" href="/" id="backBtn">← 返回主站</a>
-    <div>
-      <div class="btn" id="helpBtn">？帮助</div>
-      <div class="help" id="helpBox">
-        <div><b>Canvas Viewer</b></div>
-        <div>打开：<code>/assets/canvas.html?src=路径.canvas</code></div>
-        <div>拖拽节点 / 滚轮缩放 / 按住空白处拖动画布</div>
+  <!-- Collapsed opener -->
+  <div class="sbBtn" id="openSidebar">☰ 菜单</div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div id="sbTop">
+      <div class="sbTitle">Canvas 导航</div>
+      <div style="display:flex; gap:8px;">
+        <div class="sbBtn" id="toggleSidebar">收起</div>
       </div>
     </div>
-  </div>
+
+    <div id="sbBody">
+      <div class="group">
+        <h4>快捷</h4>
+        <div class="links" id="quickLinks"></div>
+      </div>
+
+      <div class="group">
+        <h4>Canvas 目录</h4>
+        <input id="search" placeholder="搜索画板标题…" />
+        <div style="height:10px"></div>
+        <div class="links" id="canvasLinks"></div>
+      </div>
+
+      <div class="group">
+        <h4>提示</h4>
+        <div style="color:var(--muted); font:600 12px/1.5 system-ui;">
+          进入方式：<span style="color:var(--accent)">/assets/canvas.html?src=路径.canvas</span><br/>
+          拖拽节点 / 滚轮缩放 / 按空白拖动画布
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <div id="stage">
     <div id="viewport">
@@ -85,24 +173,105 @@
 
 <script>
 (() => {
-  const qs = new URLSearchParams(location.search);
-  const src = qs.get("src") || "timeline.canvas"; // 默认文件名
+  /* =========================================================
+     ✅ 你只需要维护这里：中文标题 + 英文路径
+     路径建议用英文（稳定），标题随便中文（展示）
+     ========================================================= */
+  const CANVAS_CATALOG = [
+    { title: "全时间轴总览", src: "hs/timeline/all-timelines.canvas", hint: "Hidria / Timeline" },
+    // 你可以继续往下加：
+    // { title: "谢尔比亚编年史", src: "hs/timeline/shelbia.canvas", hint: "地区线" },
+    // { title: "永眠教廷时间线", src: "hs/timeline/eternal-sleep-church.canvas", hint: "组织线" },
+  ];
 
+  /* ===================== Query / URLs ===================== */
+  const qs = new URLSearchParams(location.search);
+  const src = qs.get("src") || (CANVAS_CATALOG[0]?.src ?? "timeline.canvas");
+
+  // 主站返回地址：你想回哪就改这里（也可在 url 里加 ?home=/trpg/ 之类）
+  const HOME = qs.get("home") || "/";
+
+  // 生成“上级页”：按 src 所在目录推导到目录 index（/xxx/）
+  function upHrefFromSrc(s){
+    if (!s) return HOME;
+    const path = s.replace(/^\/+/, "");
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length <= 1) return HOME;
+    parts.pop(); // remove filename
+    return "/" + parts.join("/") + "/"; // directory
+  }
+
+  const UP = qs.get("up") || upHrefFromSrc(src);
+
+  function viewerUrlFor(canvasSrc){
+    const u = new URL(location.href);
+    u.pathname = "/assets/canvas.html";
+    u.searchParams.set("src", canvasSrc);
+    // 保持 home/up（可选）
+    if (!u.searchParams.get("home")) u.searchParams.set("home", HOME);
+    if (!u.searchParams.get("up"))   u.searchParams.set("up", upHrefFromSrc(canvasSrc));
+    return u.toString();
+  }
+
+  /* ===================== Sidebar UI ===================== */
+  const body = document.body;
+  const openSidebar = document.getElementById("openSidebar");
+  const toggleSidebar = document.getElementById("toggleSidebar");
+  const quickLinks = document.getElementById("quickLinks");
+  const canvasLinks = document.getElementById("canvasLinks");
+  const search = document.getElementById("search");
+
+  // collapse toggle
+  function setCollapsed(v){
+    body.classList.toggle("sb-collapsed", v);
+    try{ localStorage.setItem("canvasSidebarCollapsed", v ? "1" : "0"); }catch(e){}
+  }
+  const saved = (() => { try{ return localStorage.getItem("canvasSidebarCollapsed"); }catch(e){ return null; }})();
+  setCollapsed(saved === "1");
+
+  toggleSidebar.addEventListener("click", () => setCollapsed(true));
+  openSidebar.addEventListener("click", () => setCollapsed(false));
+
+  // quick links
+  function addQuick(title, href){
+    const a = document.createElement("a");
+    a.className = "link";
+    a.href = href;
+    a.innerHTML = `<span>${title}</span><small>→</small>`;
+    quickLinks.appendChild(a);
+  }
+  addQuick("← 返回主站", HOME);
+  addQuick("↑ 返回上级", UP);
+
+  // build catalog list
+  function renderCatalog(filterText=""){
+    canvasLinks.innerHTML = "";
+    const ft = filterText.trim().toLowerCase();
+
+    for (const item of CANVAS_CATALOG){
+      const t = (item.title || "").toLowerCase();
+      const h = (item.hint || "").toLowerCase();
+      if (ft && !(t.includes(ft) || h.includes(ft))) continue;
+
+      const a = document.createElement("a");
+      a.className = "link";
+      a.href = viewerUrlFor(item.src);
+      const hint = item.hint ? `<small>${item.hint}</small>` : `<small>${item.src}</small>`;
+      a.innerHTML = `<span>${item.title}</span>${hint}`;
+      canvasLinks.appendChild(a);
+    }
+  }
+  renderCatalog();
+  search.addEventListener("input", () => renderCatalog(search.value));
+
+  /* ===================== Canvas viewer ===================== */
   const stage = document.getElementById("stage");
   const viewport = document.getElementById("viewport");
   const nodesEl = document.getElementById("nodes");
   const wires = document.getElementById("wires");
 
-  // help toggle
-  const helpBtn = document.getElementById("helpBtn");
-  const helpBox = document.getElementById("helpBox");
-  helpBtn.addEventListener("click", () => {
-    helpBox.style.display = (helpBox.style.display === "block") ? "none" : "block";
-  });
-
   // view state
   let panX = 0, panY = 0, scale = 1;
-
   function applyTransform(){
     viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
   }
@@ -134,7 +303,6 @@
     const factor = delta > 0 ? 0.92 : 1.08;
     const next = Math.min(2.0, Math.max(0.35, scale * factor));
 
-    // zoom around mouse
     const rect = stage.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
@@ -156,12 +324,10 @@
     const w = el.offsetWidth, h = el.offsetHeight;
     return { x: x + w/2, y: y + h/2 };
   }
-
   function safeBasename(p){
     const s = (p || "").replace(/\\/g,"/").split("/").filter(Boolean).pop() || "";
     return s || p || "";
   }
-
   function splitTextTitleBody(text){
     const t = (text || "").trim();
     if (!t) return { title: "文本", body: "" };
@@ -197,6 +363,14 @@
     }
   }
 
+  function mdPathToHtmlHref(mdPath){
+    let href = mdPath;
+    if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
+    else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
+    href = "/" + href.replace(/^\/+/, "");
+    return href;
+  }
+
   function createNode(n){
     const el = document.createElement("div");
     el.className = "node";
@@ -209,27 +383,20 @@
     const body = document.createElement("div");
     body.className = "body";
 
-    // --- title/body rules (✅ 不再显示 id) ---
+    // ✅ 不显示 id：标题优先 label / file basename / text第一行
     if (n.type === "text"){
       const tb = splitTextTitleBody(n.text || "");
       title.textContent = tb.title;
-      body.textContent = tb.body; // 剩余内容放 body
+      body.textContent = tb.body;
     } else if (n.type === "file" && n.file){
       title.textContent = safeBasename(n.file);
-      let href = n.file;
-
-      // index.md → 目录
-      if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
-      // .md → .html
-      else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
-
-      href = "/" + href.replace(/^\/+/, "");
+      const href = mdPathToHtmlHref(n.file);
       body.innerHTML = `文件：<a href="${href}">${n.file}</a>`;
     } else if (n.type === "link" && n.url){
-      title.textContent = "外部链接";
+      title.textContent = n.label || "外部链接";
       body.innerHTML = `链接：<a href="${n.url}" target="_blank" rel="noreferrer">${n.url}</a>`;
     } else {
-      title.textContent = "节点";
+      title.textContent = n.label || "节点";
       body.textContent = n.text || n.file || n.url || "";
     }
 
@@ -265,33 +432,25 @@
   }
 
   async function loadCanvas(){
-    // ✅ 支持两种 src：
-    // 1) 相对路径：hs/timeline/xxx.canvas
-    // 2) 绝对 URL：https://hidria.pages.dev/hs/timeline/xxx.canvas
-    const url = /^https?:\/\//i.test(src)
-      ? src
-      : ("/" + src.replace(/^\/+/,""));
-
+    const url = /^https?:\/\//i.test(src) ? src : ("/" + src.replace(/^\/+/,""));
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(`加载失败：${src} (${res.status})`);
-
-    // 如果拿到的不是 JSON，会在这里报错（你之前的 < 就是这里）
     const data = await res.json();
 
+    // reset
     nodesEl.innerHTML = "";
     nodeMap.clear();
 
     for (const n of (data.nodes || [])) createNode(n);
-
-    edges = (data.edges || []).map(e => ({
-      fromNode: e.fromNode,
-      toNode: e.toNode
-    }));
+    edges = (data.edges || []).map(e => ({ fromNode: e.fromNode, toNode: e.toNode }));
 
     wires.setAttribute("width", "50000");
     wires.setAttribute("height", "50000");
-
     requestAnimationFrame(drawWires);
+
+    // 页面 title 用目录里匹配到的中文标题（更像“页面名”）
+    const match = CANVAS_CATALOG.find(x => x.src === src);
+    if (match?.title) document.title = match.title;
   }
 
   loadCanvas().catch(err => {

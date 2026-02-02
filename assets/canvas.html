@@ -46,7 +46,7 @@
       border-right:1px solid var(--line);
       backdrop-filter: blur(12px);
       display:flex; flex-direction:column;
-      z-index:200; /* layer 2, MUST be above stage */
+      z-index:200; /* layer 2 */
       transition: width .18s ease;
     }
     #side.collapsed{ width:56px; }
@@ -79,7 +79,7 @@
       opacity:.95;
     }
 
-    /* escape links must be TOP */
+    /* nav top */
     #nav{
       padding:10px 12px;
       display:flex;
@@ -273,6 +273,47 @@
   }
   applyTransform();
 
+  // ===== Fit-to-content (auto center) =====
+  let __lastData = null;
+  function clamp(v, a, b){ return Math.min(b, Math.max(a, v)); }
+  function getSidebarWidth(){
+    // expanded 320, collapsed 56
+    return side.classList.contains("collapsed") ? 56 : 320;
+  }
+  function fitToContent(data){
+    if (!data || !data.nodes || !data.nodes.length) return;
+
+    // Use canvas JSON coordinates directly (stable, no DOM measurement race)
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of data.nodes){
+      const x = n.x ?? 0;
+      const y = n.y ?? 0;
+      const w = n.width ?? 240;
+      const h = n.height ?? 120;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + w);
+      maxY = Math.max(maxY, y + h);
+    }
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+    if (bw <= 0 || bh <= 0) return;
+
+    const margin = 32;
+    const sw = getSidebarWidth();
+    const vw = Math.max(120, window.innerWidth - sw - margin * 2);
+    const vh = Math.max(120, window.innerHeight - margin * 2);
+
+    // fit scale
+    scale = clamp(Math.min(vw / bw, vh / bh), 0.35, 2.0);
+
+    // center
+    panX = sw + margin + (vw - bw * scale) / 2 - minX * scale;
+    panY = margin + (vh - bh * scale) / 2 - minY * scale;
+
+    applyTransform();
+  }
+
   function showToast(msg){
     toast.textContent = msg;
     toast.style.display = "block";
@@ -297,6 +338,8 @@
 
   toggle.addEventListener("click", () => {
     side.classList.toggle("collapsed");
+    // wait sidebar width transition then refit
+    setTimeout(() => fitToContent(__lastData), 220);
   });
 
   // pan
@@ -335,8 +378,12 @@
     scale = next;
     panX = mx - worldX * scale;
     panY = my - worldY * scale;
+
     applyTransform();
   }, { passive:false });
+
+  // keep view stable on resize (refit to content)
+  window.addEventListener("resize", () => fitToContent(__lastData));
 
   function centerOf(el){
     const x = parseFloat(el.style.left) || 0;
@@ -371,19 +418,24 @@
     }
   }
 
-  // ===== Title rules (NO id for text nodes) =====
+  // ===== Title rules (NO id for text nodes; never show id) =====
   function titleForNode(n){
-    if (n.type === "text") return "";            // text: NO title
+    if (n.type === "text") return ""; // text nodes: no title, no id
     if (n.label && String(n.label).trim()) return String(n.label).trim();
     if (n.type === "file" && n.file) return String(n.file).split("/").pop();
-    return "";                                   // default: show nothing, never show id
+    return ""; // never fallback to id
   }
 
   function createNode(n){
     const el = document.createElement("div");
     el.className = "node";
+
     el.style.left = (n.x ?? 0) + "px";
     el.style.top  = (n.y ?? 0) + "px";
+
+    // If canvas provides explicit width/height, respect it (optional)
+    if (n.width != null) el.style.width = n.width + "px";
+    if (n.height != null) el.style.minHeight = n.height + "px";
 
     const t = titleForNode(n);
     if (t){
@@ -397,12 +449,15 @@
     body.className = "body";
 
     if (n.type === "text"){
-      // text node: ONLY body once
+      // text node: ONLY content, no duplicate
       body.textContent = n.text || "";
     } else if (n.type === "file" && n.file){
       let href = n.file;
+
+      // md routing:
       if (/\/index\.md$/i.test(href)) href = href.replace(/index\.md$/i, "");
       else if (/\.md$/i.test(href)) href = href.replace(/\.md$/i, ".html");
+
       href = normalizePath(href);
       body.innerHTML = `文件：<a href="${href}">${n.file}</a>`;
     } else if (n.type === "link" && n.url){
@@ -457,6 +512,7 @@
     if (!res.ok) throw new Error(`加载失败：${src} (${res.status})`);
 
     const data = await res.json();
+    __lastData = data;
 
     clearCanvas();
     for (const n of (data.nodes || [])) createNode(n);
@@ -465,7 +521,12 @@
 
     wires.setAttribute("width", "50000");
     wires.setAttribute("height", "50000");
-    requestAnimationFrame(drawWires);
+
+    // draw wires after DOM layout then fit to content (ensures center not empty)
+    requestAnimationFrame(() => {
+      drawWires();
+      fitToContent(__lastData);
+    });
 
     const u = new URL(location.href);
     u.searchParams.set("src", src);
@@ -493,11 +554,13 @@
     for (const a of links){
       const href = a.getAttribute("href") || "";
       if (!href.includes("/assets/canvas.html")) continue;
+
       try{
         const abs = new URL(href, location.origin);
         const s = abs.searchParams.get("src");
         if (!s) continue;
         if (!s.endsWith(".canvas")) continue;
+
         items.push({
           label: (a.textContent || "").trim() || s,
           src: s

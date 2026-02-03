@@ -1,22 +1,21 @@
 {
 	"nodes":[
-		{"id":"2af7ea2d7b9041c3","x":-1080,"y":-380,"width":2110,"height":580,"type":"group"},
 		{"id":"c4123409f04a941f","type":"text","text":"**永眠教廷发布《宣眠赦令》**\n当夜，教廷圣团进驻亚德勒兹城邦的枢城，不以军礼，不寻外交，不交战书。\n他们只循着赦令，裁决此城。\n随后枢城完全被教廷接管。而亚德勒兹城邦自此失其心脏。\n教廷并借此向世界宣战。\n而这一夜，也被后世称为**断梦夜**。","x":-360,"y":-160,"width":250,"height":340},
 		{"id":"57cc043035a2d231","x":-20,"y":-160,"width":250,"height":60,"type":"text","text":"**开启全面战争化**"},
-		{"id":"e8ea21f055745d76","type":"text","text":"希德里亚历公元前9年","x":-360,"y":-360,"width":250,"height":60},
-		{"id":"420501539bd65e79","type":"text","text":"希德里亚历公元前7年","x":-20,"y":-360,"width":250,"height":60},
-		{"id":"6861dbe979d76968","x":-1060,"y":-360,"width":250,"height":60,"type":"text","text":"希德里亚历公元前15年"},
+		{"id":"e8ea21f055745d76","type":"text","text":"希德里亚历公元前9年","x":-360,"y":-360,"width":250,"height":60,"color":"3"},
+		{"id":"420501539bd65e79","type":"text","text":"希德里亚历公元前7年","x":-20,"y":-360,"width":250,"height":60,"color":"3"},
+		{"id":"6861dbe979d76968","x":-1060,"y":-360,"width":250,"height":60,"color":"3","type":"text","text":"希德里亚历公元前15年"},
 		{"id":"c038b6b7aae74f8e","x":-1060,"y":-160,"width":250,"height":60,"type":"text","text":"**紧张局势成立**"},
-		{"id":"325194f4449e02aa","type":"text","text":"希德里亚历公元前12年","x":-700,"y":-360,"width":250,"height":60},
+		{"id":"325194f4449e02aa","type":"text","text":"希德里亚历公元前12年","x":-700,"y":-360,"width":250,"height":60,"color":"3"},
 		{"id":"39056faf1930fba3","type":"text","text":"**城邦开始站队**","x":-700,"y":-160,"width":250,"height":60},
-		{"id":"93153c83ddfcc602","type":"text","text":"希德里亚历公元前4年","x":360,"y":-360,"width":250,"height":60},
+		{"id":"93153c83ddfcc602","type":"text","text":"希德里亚历公元前4年","x":360,"y":-360,"width":250,"height":60,"color":"3"},
 		{"id":"49c43d92442a912b","type":"text","text":"**战争崩盘，遗失之地在某些地区集中爆发**","x":360,"y":-160,"width":250,"height":60},
-		{"id":"d813cfca74e2fb4a","x":760,"y":-360,"width":250,"height":60,"type":"text","text":"希德里亚历公元前3年"},
+		{"id":"d813cfca74e2fb4a","x":760,"y":-360,"width":250,"height":60,"color":"3","type":"text","text":"希德里亚历公元前3年"},
 		{"id":"1a5cbbad5e1c3984","x":760,"y":-160,"width":250,"height":60,"type":"text","text":"**政权翻新，出现起义浪潮**"},
-		{"id":"9ad3095c3292aa30","type":"text","text":"**《一统公约》的签订**\n世界权力的大洗牌，彻底完成了城邦与机构的特殊关系","x":1100,"y":-160,"width":250,"height":100},
 		{"id":"6d147edb950d6f91","x":-140,"y":-780,"width":250,"height":60,"type":"text","text":"公元前15年-公元前1年"},
 		{"id":"696e344574d627af","x":-140,"y":-560,"width":250,"height":60,"type":"text","text":"**蚀世指战**"},
-		{"id":"2c6c5a7867a0b7be","type":"text","text":"希德里亚历公元0年","x":1100,"y":-780,"width":250,"height":60}
+		{"id":"2c6c5a7867a0b7be","type":"text","text":"希德里亚历公元0年","x":1120,"y":-360,"width":250,"height":60,"color":"3"},
+		{"id":"9ad3095c3292aa30","type":"text","text":"**《一统公约》的签订**\n世界权力的大洗牌，彻底完成了城邦与机构的特殊关系","x":1120,"y":-160,"width":250,"height":100}
 	],
 	"edges":[
 		{"id":"d0ca78d3c145f1de","fromNode":"6861dbe979d76968","fromSide":"bottom","toNode":"c038b6b7aae74f8e","toSide":"top"},
@@ -32,7 +31,6 @@
 		{"id":"11a924e9d2fd5bc4","fromNode":"420501539bd65e79","fromSide":"right","toNode":"93153c83ddfcc602","toSide":"left"},
 		{"id":"1ec49d8fb4364e08","fromNode":"93153c83ddfcc602","fromSide":"right","toNode":"d813cfca74e2fb4a","toSide":"left"},
 		{"id":"5093582ae4f06ac0","fromNode":"d813cfca74e2fb4a","fromSide":"right","toNode":"2c6c5a7867a0b7be","toSide":"left"},
-		{"id":"3c1576df6b6d4ca9","fromNode":"6d147edb950d6f91","fromSide":"bottom","toNode":"696e344574d627af","toSide":"top"},
-		{"id":"0208a17b40f0762e","fromNode":"696e344574d627af","fromSide":"bottom","toNode":"2af7ea2d7b9041c3","toSide":"top"}
+		{"id":"3c1576df6b6d4ca9","fromNode":"6d147edb950d6f91","fromSide":"bottom","toNode":"696e344574d627af","toSide":"top"}
 	]
 }

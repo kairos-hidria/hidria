@@ -38,4 +38,4 @@
 - [橡木镇失联案](/trpg/modules/The_Oakwood_Town_Communication_Loss_Case/index)
 - [黑木岔口-模拟训练](/trpg/modules/Blackwood_Crossroads-Simulation_Training/index)
 #### 极北之地
-- [奇塔斯家的宴请]()
+- [奇塔斯家的宴请](trpg/modules/The_Chitas_Feast/index.md)

@@ -117,3 +117,27 @@ body{
   .top{flex-direction:column; align-items:flex-start}
   .title{font-size:24px}
 }
+/* ===== Images: sane defaults ===== */
+.md img{
+  max-width: 100%;
+  height: auto;              /* 保持比例 */
+  display: block;            /* 避免行内元素底部空隙 */
+  margin: 12px auto;         /* 居中 */
+  border-radius: 12px;
+}
+
+/* 图片如果太“高”，限制一下高度，避免占满屏 */
+.md img{
+  max-height: 72vh;          /* 你想更严格可以改成 60vh */
+  object-fit: contain;       /* 不裁剪 */
+}
+
+/* 如果你有图片被当作链接包起来 */
+.md a > img{
+  margin: 12px auto;
+}
+
+/* 表格里的图片别把表格撑爆 */
+.md table img{
+  max-height: 220px;
+}

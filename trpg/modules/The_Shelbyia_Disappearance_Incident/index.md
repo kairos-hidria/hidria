@@ -66,7 +66,7 @@
 
 性格：做事保守，很不希望暴露出一些小镇治理上的问题。
 ### 地图部分
-![图片|500](/trpg/modules/The_Shelbyia_Disappearance_Incident/The_Shelbyia_Disappearance_Incident.png)
+![图片](/trpg/modules/The_Shelbyia_Disappearance_Incident/The_Shelbyia_Disappearance_Incident.png)
 ## 官方建议
 本节内容包含官方提供的参考故事线路、判准与判定方式。
 

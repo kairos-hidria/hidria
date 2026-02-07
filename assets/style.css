@@ -1,5 +1,3 @@
-@import url("./theme.css");
-
 :root{
   --bg:#0b0f17;
   --panel:rgba(255,255,255,.06);
@@ -9,16 +7,7 @@
   --line:rgba(255,255,255,.12);
   --shadow:0 12px 40px rgba(0,0,0,.35);
   --r:18px;
-
-  /* 标题层级色（按你的：红橙黄绿蓝紫） */
-  --h1:#ff4d4f;
-  --h2:#ff8c42;
-  --h3:#ffd666;
-  --h4:#52c41a;
-  --h5:#4096ff;
-  --h6:#9254de;
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -27,7 +16,6 @@ body{
   background:var(--bg);
   color:var(--text);
 }
-
 .bg{
   position:fixed; inset:-40vmax;
   background:
@@ -37,7 +25,6 @@ body{
   filter: blur(18px);
   opacity:.9;
 }
-
 .wrap{position:relative; max-width:980px; margin:0 auto; padding:18px;}
 .top{
   display:flex; align-items:center; justify-content:space-between; gap:14px;
@@ -56,7 +43,6 @@ body{
 }
 .nav a:hover{color:var(--text); border-color:var(--line); background:rgba(255,255,255,.06)}
 .content{padding-top:6px; padding-bottom:28px}
-
 .card{
   border:1px solid var(--line);
   background:var(--panel);
@@ -68,7 +54,6 @@ body{
 .title{margin:0 0 10px; font-size:28px; letter-spacing:.2px}
 .muted{color:var(--muted)}
 .foot{padding-top:10px}
-
 /* ===== Obsidian Callout Compatibility ===== */
 .callout{
   --c-bg: rgba(123, 211, 224, 0.18);
@@ -108,98 +93,30 @@ body{
 .callout.warning { --c-bg: rgba(255,200,120,.16); --c-bd: rgba(255,200,120,.55); --c-fg:#c77700; }
 .callout.note    { --c-bg: rgba(160,160,255,.14); --c-bd: rgba(160,160,255,.50); --c-fg:#5b6cff; }
 
-/* ===== Markdown Base ===== */
-.md{line-height:1.75}
-.md p{margin:10px 0; color:rgba(255,255,255,.86)}
-.md a{
-  color:rgba(160,210,255,.95);
-  text-decoration:none;
-  border-bottom:1px dotted rgba(160,210,255,.45);
-}
-.md a:hover{border-bottom-color:rgba(160,210,255,.9)}
 
+/* Markdown */
+.md{line-height:1.75}
+.md h2{margin:20px 0 10px; font-size:20px}
+.md h3{margin:18px 0 8px; font-size:17px; color:rgba(255,255,255,.86)}
+.md p{margin:10px 0; color:rgba(255,255,255,.86)}
+.md a{color:rgba(160,210,255,.95); text-decoration:none; border-bottom:1px dotted rgba(160,210,255,.45)}
+.md a:hover{border-bottom-color:rgba(160,210,255,.9)}
 .md code{
   font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.10);
-  padding:.15em .35em;
-  border-radius:8px;
+  padding:.15em .35em; border-radius:8px;
 }
 .md pre{
   overflow:auto;
   background:rgba(0,0,0,.35);
   border:1px solid rgba(255,255,255,.10);
-  padding:12px;
-  border-radius:14px;
+  padding:12px; border-radius:14px;
 }
-
-/* ===== 标题：分级颜色 + 左边框 + 渐变底条（可读性增强） ===== */
-.md h1,.md h2,.md h3,.md h4,.md h5,.md h6{
-  scroll-margin-top: 88px;
-  background: linear-gradient(to right, rgba(255,255,255,0.05), transparent);
-  border-radius: 10px;
-  padding: 8px 10px 8px 12px;
+@media (max-width:760px){
+  .top{flex-direction:column; align-items:flex-start}
+  .title{font-size:24px}
 }
-
-.md h1{
-  margin:28px 0 18px;
-  font-size:28px;
-  color:var(--h1);
-  border-left:6px solid var(--h1);
-}
-.md h2{
-  margin:22px 0 14px;
-  font-size:20px;
-  color:var(--h2);
-  border-left:5px solid var(--h2);
-}
-.md h3{
-  margin:18px 0 12px;
-  font-size:17px;
-  color:var(--h3);
-  border-left:4px solid var(--h3);
-}
-.md h4{
-  margin:16px 0 10px;
-  font-size:15px;
-  color:var(--h4);
-  border-left:3px solid var(--h4);
-}
-.md h5{
-  margin:14px 0 8px;
-  font-size:13.5px;
-  color:var(--h5);
-  border-left:3px solid var(--h5);
-}
-.md h6{
-  margin:12px 0 6px;
-  font-size:12.5px;
-  color:var(--h6);
-  border-left:3px solid var(--h6);
-}
-
-/* 可选：标题下的 hr 不要太抢戏 */
-.md hr{
-  border:0;
-  height:1px;
-  background: linear-gradient(to right, rgba(255,255,255,.18), rgba(255,255,255,0));
-  margin:14px 0;
-}
-
-/* 列表更舒服一点 */
-.md ul,.md ol{ margin:10px 0 10px 1.2rem; }
-.md li{ margin:6px 0; color:rgba(255,255,255,.86); }
-
-/* 引用块（如果 markdown 里有 > ） */
-.md blockquote{
-  margin:14px 0;
-  padding:10px 12px;
-  border-left:4px solid rgba(160,210,255,.55);
-  background:rgba(255,255,255,.05);
-  border-radius:12px;
-  color:rgba(255,255,255,.85);
-}
-
 /* ===== Images: sane defaults ===== */
 .md img{
   max-width: 100%;
@@ -207,7 +124,11 @@ body{
   display: block;            /* 避免行内元素底部空隙 */
   margin: 12px auto;         /* 居中 */
   border-radius: 12px;
-  max-height: 72vh;          /* 避免占满屏 */
+}
+
+/* 图片如果太“高”，限制一下高度，避免占满屏 */
+.md img{
+  max-height: 72vh;          /* 你想更严格可以改成 60vh */
   object-fit: contain;       /* 不裁剪 */
 }
 
@@ -219,31 +140,4 @@ body{
 /* 表格里的图片别把表格撑爆 */
 .md table img{
   max-height: 220px;
-}
-
-/* 表格样式（可读性） */
-.md table{
-  width:100%;
-  border-collapse: collapse;
-  margin:12px 0;
-  overflow:hidden;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.10);
-}
-.md th,.md td{
-  padding:10px 12px;
-  border-bottom:1px solid rgba(255,255,255,.10);
-  color:rgba(255,255,255,.86);
-}
-.md th{
-  background:rgba(255,255,255,.06);
-  color:rgba(255,255,255,.92);
-  font-weight:800;
-}
-.md tr:hover td{ background:rgba(255,255,255,.04); }
-
-@media (max-width:760px){
-  .top{flex-direction:column; align-items:flex-start}
-  .title{font-size:24px}
-  .md h1{font-size:24px}
 }

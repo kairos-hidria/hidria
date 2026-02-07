@@ -1,143 +1,182 @@
-:root{
-  --bg:#0b0f17;
-  --panel:rgba(255,255,255,.06);
-  --panel2:rgba(255,255,255,.10);
-  --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.65);
-  --line:rgba(255,255,255,.12);
-  --shadow:0 12px 40px rgba(0,0,0,.35);
-  --r:18px;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-.bg{
-  position:fixed; inset:-40vmax;
-  background:
-    radial-gradient(closest-side, rgba(116,176,255,.20), transparent 60%),
-    radial-gradient(closest-side, rgba(152,108,255,.14), transparent 62%),
-    radial-gradient(closest-side, rgba(0,255,198,.10), transparent 65%);
-  filter: blur(18px);
-  opacity:.9;
-}
-.wrap{position:relative; max-width:980px; margin:0 auto; padding:18px;}
-.top{
-  display:flex; align-items:center; justify-content:space-between; gap:14px;
-  padding-top:22px;
-}
-.brand{
-  color:var(--text); text-decoration:none; font-weight:700; letter-spacing:.3px;
-  padding:10px 12px; border:1px solid var(--line); border-radius:999px;
-  background:rgba(0,0,0,.22); backdrop-filter: blur(8px);
-}
-.nav{display:flex; gap:10px; flex-wrap:wrap}
-.nav a{
-  color:var(--muted); text-decoration:none;
-  padding:10px 12px; border-radius:999px;
-  border:1px solid transparent;
-}
-.nav a:hover{color:var(--text); border-color:var(--line); background:rgba(255,255,255,.06)}
-.content{padding-top:6px; padding-bottom:28px}
-.card{
-  border:1px solid var(--line);
-  background:var(--panel);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  backdrop-filter: blur(10px);
-  padding:18px 18px 14px;
-}
-.title{margin:0 0 10px; font-size:28px; letter-spacing:.2px}
-.muted{color:var(--muted)}
-.foot{padding-top:10px}
-/* ===== Obsidian Callout Compatibility ===== */
-.callout{
-  --c-bg: rgba(123, 211, 224, 0.18);
-  --c-bd: rgba(123, 211, 224, 0.55);
-  --c-fg: #0aa7b8;
+/* ================================
+   🌌 Hidria Theme Lite
+   ================================ */
 
-  margin: 1.2rem 0;
-  border: 2px solid var(--c-bd);
-  background: var(--c-bg);
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
+/* ===== 标题层级颜色 ===== */
+
+.md h1{
+  color:#ff5a5a;
+  border-left:6px solid #ff5a5a;
+  padding-left:12px;
 }
 
-.callout-title{
-  display:flex;
-  align-items:center;
-  gap:.6rem;
-  font-weight: 800;
-  color: var(--c-fg);
+.md h2{
+  color:#ff9a3c;
+  border-left:6px solid #ff9a3c;
+  padding-left:12px;
 }
 
-.callout-title::before{
-  content:"";
-  width:1.1rem;
-  height:1.1rem;
-  border-radius:4px;
-  border:2px solid var(--c-fg);
-  opacity:.9;
+.md h3{
+  color:#ffd95e;
+  border-left:6px solid #ffd95e;
+  padding-left:12px;
 }
 
-.callout-body{ margin-top:.6rem; }
-.callout-body p{ margin: .6rem 0 .2rem; }
-.callout-body ul, .callout-body ol{ margin: .6rem 0 .2rem 1.2rem; }
+.md h4{
+  color:#63d98a;
+  border-left:6px solid #63d98a;
+  padding-left:12px;
+}
 
-.callout.summary { --c-bg: rgba(123,211,224,.18); --c-bd: rgba(123,211,224,.55); --c-fg:#0aa7b8; }
-.callout.tip     { --c-bg: rgba(123,224,180,.16); --c-bd: rgba(123,224,180,.55); --c-fg:#10a36a; }
-.callout.warning { --c-bg: rgba(255,200,120,.16); --c-bd: rgba(255,200,120,.55); --c-fg:#c77700; }
-.callout.note    { --c-bg: rgba(160,160,255,.14); --c-bd: rgba(160,160,255,.50); --c-fg:#5b6cff; }
+.md h5{
+  color:#63a8ff;
+  border-left:6px solid #63a8ff;
+  padding-left:12px;
+}
 
+.md h6{
+  color:#b57bff;
+  border-left:6px solid #b57bff;
+  padding-left:12px;
+}
 
-/* Markdown */
-.md{line-height:1.75}
-.md h2{margin:20px 0 10px; font-size:20px}
-.md h3{margin:18px 0 8px; font-size:17px; color:rgba(255,255,255,.86)}
-.md p{margin:10px 0; color:rgba(255,255,255,.86)}
-.md a{color:rgba(160,210,255,.95); text-decoration:none; border-bottom:1px dotted rgba(160,210,255,.45)}
-.md a:hover{border-bottom-color:rgba(160,210,255,.9)}
-.md code{
-  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+/* ===== 强调文本规则 ===== */
+
+/* **** 红色强调 */
+.md strong{
+  color:#ff5a5a;
+  font-weight:800;
+}
+
+/* ** 橙色强调（当被当作斜体用时） */
+.md em{
+  color:#ff9a3c;
+  font-style:italic;
+}
+
+/* 如果你写成 strong + em 叠加 */
+.md strong em,
+.md em strong{
+  color:#ff6ad5;
+}
+
+/* ===== 段落可读性 ===== */
+
+.md p{
+  line-height:1.9;
+  letter-spacing:.2px;
+}
+
+/* ===== 列表优化 ===== */
+
+.md ul li::marker{
+  color:#63a8ff;
+}
+
+.md ol li::marker{
+  color:#ff9a3c;
+  font-weight:700;
+}
+
+/* ===== 引用块 ===== */
+
+.md blockquote{
+  border-left:4px solid rgba(160,210,255,.6);
+  padding-left:14px;
+  color:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.03);
+  border-radius:8px;
+}
+
+/* ===== 表格 ===== */
+
+.md table{
+  width:100%;
+  border-collapse:collapse;
+  margin:18px 0;
+}
+
+.md th{
   background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.10);
-  padding:.15em .35em; border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+  padding:8px 10px;
 }
-.md pre{
-  overflow:auto;
-  background:rgba(0,0,0,.35);
-  border:1px solid rgba(255,255,255,.10);
-  padding:12px; border-radius:14px;
+
+.md td{
+  border:1px solid rgba(255,255,255,.08);
+  padding:8px 10px;
 }
-@media (max-width:760px){
-  .top{flex-direction:column; align-items:flex-start}
-  .title{font-size:24px}
+
+.md tr:nth-child(even){
+  background:rgba(255,255,255,.02);
 }
-/* ===== Images: sane defaults ===== */
+
+/* ===== 图片系统 ===== */
+
 .md img{
-  max-width: 100%;
-  height: auto;              /* 保持比例 */
-  display: block;            /* 避免行内元素底部空隙 */
-  margin: 12px auto;         /* 居中 */
-  border-radius: 12px;
+  max-width:100%;
+  height:auto;
+  display:block;
+  margin:16px auto;
+  border-radius:14px;
+  box-shadow:0 10px 40px rgba(0,0,0,.35);
 }
 
-/* 图片如果太“高”，限制一下高度，避免占满屏 */
+/* 超高图片限制 */
 .md img{
-  max-height: 72vh;          /* 你想更严格可以改成 60vh */
-  object-fit: contain;       /* 不裁剪 */
+  max-height:72vh;
+  object-fit:contain;
 }
 
-/* 如果你有图片被当作链接包起来 */
-.md a > img{
-  margin: 12px auto;
-}
-
-/* 表格里的图片别把表格撑爆 */
+/* 表格里的图片 */
 .md table img{
-  max-height: 220px;
+  max-height:220px;
+}
+
+/* ===== 代码块 ===== */
+
+.md code{
+  color:#7ee7ff;
+  background:rgba(255,255,255,.08);
+  border-radius:6px;
+  padding:.15em .35em;
+}
+
+.md pre{
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.35);
+}
+
+/* ===== 分割线 ===== */
+
+.md hr{
+  border:none;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.35),
+    transparent
+  );
+  margin:28px 0;
+}
+
+/* ===== 链接 ===== */
+
+.md a{
+  color:#7ecbff;
+  text-decoration:none;
+  border-bottom:1px dotted rgba(126,203,255,.5);
+}
+
+.md a:hover{
+  border-bottom:1px solid rgba(126,203,255,.9);
+}
+
+/* ===== Callout 微强化 ===== */
+
+.callout{
+  border-width:2px;
+  backdrop-filter:blur(12px);
 }

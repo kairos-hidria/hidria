@@ -31,8 +31,11 @@
 - [给探索员的全面指南](/trpg/rules/player_rules/index)
 - [给管理员的全面指南](/trpg/rules/storyteller_rules/index)
 - [给希望创建自己的模组的人看的部分]()
-## [官方模组](/trpg/modules/index)
+## 官方模组
 ---
+### [模组目录](/trpg/modules/index)
+#### 事先声明
+若您并非是游戏的主持人或是将要游玩某模组的玩家，以下内容将会包含全部剧情与特殊互动要求，可能会给你的游玩带来不好的体验。
 #### 亚德勒兹城邦
 - [谢尔比亚失踪事件](/trpg/modules/The_Shelbyia_Disappearance_Incident/index)
 - [橡木镇失联案](/trpg/modules/The_Oakwood_Town_Communication_Loss_Case/index)

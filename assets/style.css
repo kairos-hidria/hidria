@@ -180,3 +180,43 @@
   border-width:2px;
   backdrop-filter:blur(12px);
 }
+/* ===== Patch: 深灰偏紫底色 + 分割线/链接可读性 ===== */
+
+/* 全局底色（防止变白） */
+html, body{
+  background: #10101a !important; /* 深灰偏紫 */
+  color: rgba(255,255,255,.92);
+}
+
+/* 你的卡片/正文容器仍然走原来的玻璃风，但在白底情况下更稳 */
+.card{
+  background: rgba(255,255,255,.06) !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+
+/* 分割线更亮一点（白底/浅底也能看见） */
+.md hr{
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(210,190,255,.55),
+    transparent
+  ) !important;
+  opacity: 1 !important;
+}
+
+/* 链接更亮、更偏紫蓝，且下划线更明显 */
+.md a{
+  color: rgba(190,160,255,.98) !important;            /* 偏紫 */
+  border-bottom: 1px dotted rgba(190,160,255,.70) !important;
+}
+.md a:hover{
+  border-bottom: 1px solid rgba(210,190,255,.95) !important;
+  filter: brightness(1.08);
+}
+
+/* 可选：正文的次级文字别太灰（避免“看不清”） */
+.md p, .muted{
+  color: rgba(255,255,255,.86) !important;
+}

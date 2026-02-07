@@ -31,6 +31,8 @@
 - [给探索员的全面指南](/trpg/rules/player_rules/index)
 - [给管理员的全面指南](/trpg/rules/storyteller_rules/index)
 - [给希望创建自己的模组的人看的部分]()
+## [种族名录（点此查看详细内容）](/trpg/rules/races/index)
+
 ## 官方模组
 ---
 ### [模组目录](/trpg/modules/index)

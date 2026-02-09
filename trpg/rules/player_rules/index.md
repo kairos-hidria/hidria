@@ -51,10 +51,10 @@
 ## 正式规则部分
 从本阶段开始，将全面的交代所有的探索员的规则。
 ### [Ⅰ.角色创建](/trpg/rules/player_rules/1.character/index)
-### [Ⅱ.判定系统](/trpg/rules/player_rules/2.checks)
+### [Ⅱ.判定系统](/trpg/rules/player_rules/2.checks/index)
 ### [Ⅲ.数据计算](/trpg/rules/player_rules/3.data/index)
-### [Ⅳ.战斗系统](/trpg/rules/player_rules/4.battle/index)
-### Ⅴ.探索系统
+### [Ⅳ.战斗系统](trpg/rules/player_rules/4.battle/index.md)
+### [Ⅴ.探索系统](trpg/rules/player_rules/5.explore/index.md)
 ### Ⅵ.特殊状态
 ### Ⅶ.跑团流程
 ### Ⅷ.特殊事件

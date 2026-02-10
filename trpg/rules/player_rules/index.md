@@ -55,7 +55,6 @@
 ### [Ⅲ.数据计算](/trpg/rules/player_rules/3.data/index)
 ### [Ⅳ.战斗系统](trpg/rules/player_rules/4.battle/index.md)
 ### [Ⅴ.探索系统](trpg/rules/player_rules/5.explore/index.md)
-### Ⅵ.特殊状态
-### Ⅶ.跑团流程
-### Ⅷ.特殊事件
-### Ⅸ.杂项
+### [Ⅵ.特殊状态](/trpg/rules/player_rules/6.conditions/index)
+### [Ⅶ.游戏流程](/trpg/rules/player_rules/7.session_flow/index)
+### [Ⅷ.特殊事件](/trpg/rules/player_rules/8.special/index)

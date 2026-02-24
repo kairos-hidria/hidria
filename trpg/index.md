@@ -27,7 +27,7 @@
 
 ## 游戏规则
 ---
-- [世界观](/hs/index)（用来了解完全的希德里亚世界观的。）
+- [世界观](hs/hs-index.md)（用来了解完全的希德里亚世界观的。）
 - [给探索员的全面指南](/trpg/rules/player_rules/index)
 - [给管理员的全面指南](/trpg/rules/storyteller_rules/index)
 ---
